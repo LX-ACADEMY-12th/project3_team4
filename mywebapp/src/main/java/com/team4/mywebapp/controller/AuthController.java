@@ -3,17 +3,15 @@ package com.team4.mywebapp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.team4.mywebapp.dto.LoginDto;
+import com.team4.mywebapp.dto.UserDto;
 import com.team4.mywebapp.service.AuthService;
 
-import ch.qos.logback.core.model.Model;
-import jakarta.servlet.http.HttpServletRequest;
+
 
 @RestController
 @RequestMapping("/api")  // ← API 경로
@@ -25,9 +23,9 @@ public class AuthController {
 	
 	// 로그인 요청 처리
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
+	public ResponseEntity<String> login(@RequestBody UserDto UserDto) {
         // 비즈니스 로직은 서비스 계층에 위임
-        boolean isAuthenticated = authService.authenticateUser(loginDto);
+        boolean isAuthenticated = authService.authenticateUser(UserDto);
 
         if (isAuthenticated) {
             // 인증 성공 시, 성공 응답 반환
