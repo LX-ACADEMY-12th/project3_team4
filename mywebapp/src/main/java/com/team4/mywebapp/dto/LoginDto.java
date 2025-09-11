@@ -2,20 +2,30 @@ package com.team4.mywebapp.dto;
 
 public class LoginDto {
 	
-	private String username;
-    private String password;
+	private String login_id;
+    private String login_pw;
     
-	public String getUsername() {
-		return username;
+    public LoginDto() {
+    	
+    }
+	
+	public String getLogin_id() {
+		return login_id;
 	}
-	public void setUsername(String username) {
-		this.username = username;
+	public void setLogin_id(String login_id) {
+		this.login_id = login_id;
 	}
-	public String getPassword() {
-		return password;
+	public String getLogin_pw() {
+		return login_pw;
 	}
-	public void setPassword(String password) {
-		this.password = password;
+	public void setLogin_pw(String login_pw) {
+		this.login_pw = login_pw;
 	}
+    
+	@Override
+	public String toString() {
+		return "LoginDto [login_id=" + login_id + "]";
+	}
+	
     
 }

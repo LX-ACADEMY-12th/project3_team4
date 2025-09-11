@@ -8,22 +8,6 @@
         VALUES (#{username}, #{password}, #{nickname}, #{gender}, #{profileLink}, NOW())
     </insert>
     
-    <!-- 사용자명으로 조회 -->
-    <select id="selectUserByUsername" parameterType="String" resultType="UserDto">
-        SELECT user_id, username, password, nickname, gender, profile_link, 
-               profile_image, status_message, created_at, updated_at
-        FROM users 
-        WHERE username = #{username}
-    </select>
-    
-    <!-- ID로 사용자 조회 -->
-    <select id="selectUserById" parameterType="Long" resultType="UserDto">
-        SELECT user_id, username, password, nickname, gender, profile_link, 
-               profile_image, status_message, created_at, updated_at
-        FROM users 
-        WHERE user_id = #{userId}
-    </select>
-    
     <!-- 프로필 업데이트 -->
     <update id="updateUserProfile" parameterType="UserDto">
         UPDATE users 
@@ -34,15 +18,37 @@
         WHERE user_id = #{userId}
     </update>
     
-    <!-- 사용자명 중복 체크 -->
-    <select id="checkUsernameExists" parameterType="String" resultType="int">
-        SELECT COUNT(*) FROM users WHERE username = #{username}
-    </select>
+    <!-- 사용자 삭제 -->
+    <delete id="deleteUser">
+    	delete from user where user_id = #{userId}
+    </delete>
     
     <!-- 닉네임 중복 체크 -->
     <select id="checkNicknameExists" parameterType="String" resultType="int">
         SELECT COUNT(*) FROM users WHERE nickname = #{nickname}
     </select>
+    
+    <!-- 사용자명으로 조회 -->
+    <select id="selectUserByUsername" parameterType="String" resultType="UserDto">
+        SELECT user_id, username, password, nickname, gender, profile_link, 
+               profile_image, status_message, created_at, updated_at
+        FROM users 
+        WHERE username = #{username}
+    </select>
+    
+    <!-- ID로 사용자 조회 -->
+    <select id="selectUserById" parameterType="int" resultType="UserDto">
+        SELECT user_id, username, password, nickname, gender, profile_link, 
+               profile_image, status_message, created_at, updated_at
+        FROM users 
+        WHERE user_id = #{userId}
+    </select>
+    
+    
+  
+    
+    
+    
 
 
 
