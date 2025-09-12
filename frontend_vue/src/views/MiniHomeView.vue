@@ -1,16 +1,24 @@
 <template>
-  <div class="d-flex flex-column p-3" style="font-family: 'DotGothic16', sans-serif; height: 700px; width: 900px;">
-    <div class="d-flex p-2 mb-3 bg-text-black justify-content-between align-items-center">
+  <div class="d-flex flex-column p-3"
+    :style="{ 'font-family': 'DotGothic16, sans-serif', 'height': '700px', 'width': '900px', 'background-color': userInfo.backgroundColor }">
+    <div class=" d-flex p-2 mb-3 text-black justify-content-between align-items-center">
       <div class="d-flex flex-column ms-4 me-4 align-items-center border border-dark">
         <span class="m-3">{{ userInfo.nickname || '사용자' }}님의 미니홈피</span>
         <div class="border border-dark">
-          <span class="badge bg-danger me-1">TODAY {{ visitCount.today }}</span>
-          <span class="badge bg-secondary">TOTAL {{ visitCount.total }}</span>
+          <span class="badge bg-danger me-1">TODAY {{ visitCount?.todayCount || '13' }}</span>
+          <span class="badge bg-secondary">TOTAL {{ visitCount?.totalCount || '13' }}</span>
         </div>
       </div>
 
       <div class="border border-dark col-8 mx-auto">
         <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD">
+      </div>
+
+      <div v-if="userInfo.userId === loginInUserId">
+        <button class="btn btn-sm btn-outline-info" @click="isEditing = true">
+          수정
+        </button>
+
       </div>
     </div>
 
@@ -162,20 +170,23 @@ export default {
   // 모든 데이터를 'data' 안에 직접 작성합니다.
   data() {
     return {
-      // 사용자 정보: 실제 데이터처럼 값을 채워 넣습니다.
+      // API 호출 전 초기 상태는 null 또는 빈 객체로 설정
       userInfo: {
-        nickname: '김싸이',
-        profileImage: 'https://placehold.co/120x120/cccccc/ffffff?text=김싸이',
-        todayMood: '행복함',
-        statusMessage: '오늘도 즐거운 하루!',
-        emptySpaceText: '어서오세요, 환영합니다!',
-        youtubeVideoId: 'dQw4w9WgXcQ',
+        userId: null,
+        nickname: null,
+        profileImagePath: null,
+        todayMood: null,
+        statusMessage: null,
+        youtubeVideoId: null,
+        backgroundColor: '#FFFFFF',
       },
-      // 방문자 수
       visitCount: {
-        today: 15,
-        total: 1234,
+        todayCount: 0,
+        totalCount: 0
       },
+      logInUserId: "leesuji", // 로그인한 사용자 ID (임시값)
+      isEditing: false, // 수정 모드 상태
+
       // 친구 목록: 배열로 여러 개의 객체를 넣습니다.
       friendsList: [
         { id: 1, nickname: '김일촌' },
@@ -206,29 +217,39 @@ export default {
   // 라이프사이클 훅으로, 컴포넌트의 인스턴스가 DOM에 완전 연결되고 렌더링 된 후 호출
   mounted() {
     // 사용자 정보를 가져오는 메서드실행
-    this.fetchUserInfo();
+    this.fetchUserInfo(this.logInUserId); // 로그인 사용자 ID로 정보 조회
   },
 
   // 컴포넌트가 사용할 메서드(함수)
   methods: {
-    async fetchUserInfo() {
-      try {
-        const response = await axios.get('http://localhost:8080/api/user');
 
-        // 성공적으로 데이터를 받으면 userInfo에 할당
+    // user 정보 가져오기
+    async fetchUserInfo(logInUserId) {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/user?loginUserId=${logInUserId}`);
+
+        // API 응답 객체에서 userInfo와 visitCount를 각각 할당
         this.userInfo = response.data;
+        this.visitCount = response.data.visitCount;
 
       } catch (error) {
         // API 요청 실패 시 에러를 콘솔에 출력
         console.error("사용자 정보를 가져오는데 실패했습니다.", error);
+
+        // 에러 발생 시 가짜 데이터 할당
         this.userInfo = {
-          nickname: '사용자',
+          nickname: '에러',
           profileImage: 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Error',
           todayMood: '[에러]',
           statusMessage: '데이터를 불러오지 못했습니다.',
           emptySpaceText: '정보 로딩 실패',
-          youtubeVideoId: null
-        }
+          youtubeVideoId: null,
+          backgroundColor: '#FFFFFF' // 에러 시 기본 배경색
+        };
+        this.visitCount = {
+          today: 0,
+          total: 0
+        };
       }
     }
   }
