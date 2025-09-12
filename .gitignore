@@ -1,1 +1,24 @@
+# Spring Boot (mywebapp 관련)
 mywebapp/target/
+mywebapp/.settings/
+mywebapp/.classpath  
+mywebapp/.project
+mywebapp/.factorypath
+
+# Vue.js (frontend_vue 관련)  
+frontend_vue/node_modules/
+frontend_vue/dist/
+frontend_vue/.env.local
+frontend_vue/.env.*.local
+
+# 일반적인 파일들
+*.log
+*.jar
+*.war
+*.class
+.DS_Store
+Thumbs.db
+
+# IDE 설정
+.vscode/
+.idea/
