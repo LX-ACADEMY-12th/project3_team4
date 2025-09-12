@@ -14,11 +14,10 @@
         <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD">
       </div>
 
-      <div v-if="userInfo.userId === loginInUserId">
-        <button class="btn btn-sm btn-outline-info" @click="isEditing = true">
+      <div>
+        <button class="btn btn-sm btn-outline-info">
           수정
         </button>
-
       </div>
     </div>
 
@@ -184,8 +183,7 @@ export default {
         todayCount: 0,
         totalCount: 0
       },
-      logInUserId: "leesuji", // 로그인한 사용자 ID (임시값)
-      isEditing: false, // 수정 모드 상태
+      logInUserId: "leesuji", // 로그인한 사용자 ID (임시값) <- 세션 정보로 불러와야 함.
 
       // 친구 목록: 배열로 여러 개의 객체를 넣습니다.
       friendsList: [
@@ -226,7 +224,7 @@ export default {
     // user 정보 가져오기
     async fetchUserInfo(logInUserId) {
       try {
-        const response = await axios.get(`http://localhost:8080/api/user?loginUserId=${logInUserId}`);
+        const response = await axios.get(`http://localhost:8080/api/my-minihome?loginUserId=${logInUserId}`);
 
         // API 응답 객체에서 userInfo와 visitCount를 각각 할당
         this.userInfo = response.data;
