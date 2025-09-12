@@ -1,32 +1,31 @@
 <template>
-  <div style="width: 400px; height: 400px; background-color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; box-sizing: border-box;">
+  <div class="container">
+    <div class="header">
+      <div class="logo-wrapper">
+        <img src="@/assets/images/lx.png" class="logo-img">
+      </div>
+      <div class="title">XIIWORLD</div>
+      <div class="team">team4</div>
+    </div>
 
-  <div style="display: flex; align-items: center;justify-content: center;  margin-bottom: 20px; gap: 15px">
-    <div style="width: 40px; height: 40px; border-radius: 50%; background-color: black; border: 2px solid #ddd; display: flex; justify-content: center; align-items: center; margin: 0 auto 10px auto; overflow: hidden;">
-      <img src="@/assets/images/lx.png" style="width: 40px; height: 40px; object-fit: contain;">
-    
-    </div>
-    <div style="font-size:xx-large; font-weight: bold; color:gray;">XIIWORLD</div>
-    <div style="color:gray; font-size: smaller;">team4</div>
-  </div>
+    <div class="form-wrapper">
+      <div class="input-row">
+        <input type="text" placeholder="아이디(이메일)" v-model="loginData.loginId" class="input-id">
+      </div> 
+     
+      <div class="input-container">
+        <input type="password" placeholder="비밀번호" v-model="loginData.loginPw" class="input-pw">
+      </div>
 
-  <div style="display: flex; flex-direction: column; gap: 10px; width: 300px; align-items: center;">
-  
-    <div style="display: flex; gap: 10px; align-items: center;">
-      <input type="text" placeholder="아이디(이메일)"  v-model = "loginData.loginId" 
-      style="flex: 1; ">
-    </div> 
-    <div>
-      <input type="password" placeholder="비밀번호" v-model="loginData.loginPw">
+      <div class="button-row">
+        <input type="button" value="로그인" @click="handleLogin" class="login-btn">
+        <input type="button" value="회원가입" @click="$router.push('/')" class="signup-btn">
+      </div>
     </div>
-     <div style="display: flex; gap: 10px; align-items: center;">
-      <input type="button" value="로그인" @click="handleLogin">
-      <input type="button" value="회원가입" @click="$router.push('/')">
-    </div>
-   
   </div>
-</div>
 </template>
+
+
 
 <script setup>
 import axios from 'axios'
@@ -56,12 +55,89 @@ async function handleLogin() {
     router.push('/')
 
   } catch (error) {
+    console.error('로그인 에러' + error)
     alert('로그인 실패')
   }
 }
   
 </script>
 
-<style>
+<style scoped>
+.container {
+  width: 400px; 
+  height: 400px; 
+  background-color: white; 
+  border-radius: 50%; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center; 
+  padding: 40px; 
+  box-sizing: border-box;
+}
 
+.header {
+  display: flex; 
+  align-items: center;
+  justify-content: center;  
+  margin-bottom: 20px; 
+  gap: 15px;
+}
+
+.logo-wrapper {
+  width: 40px; 
+  height: 40px; 
+  border-radius: 50%; 
+  background-color: black; 
+  border: 2px solid #ddd; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  margin: 0 auto 10px auto; 
+  overflow: hidden;
+}
+
+.logo-img {
+  width: 40px; 
+  height: 40px; 
+  object-fit: contain;
+}
+
+.title {
+  font-size: xx-large; 
+  font-weight: bold; 
+  color: gray;
+}
+
+.team {
+  color: gray; 
+  font-size: smaller;
+}
+
+.form-wrapper {
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+  width: 300px; 
+  align-items: center;
+}
+
+.input-row {
+  display: flex; 
+  gap: 10px; 
+  align-items: center;
+}
+
+.input-id {
+  flex: 1;
+}
+
+
+.button-row {
+  display: flex; 
+  gap: 10px; 
+  align-items: center;
+}
 </style>
+
+
