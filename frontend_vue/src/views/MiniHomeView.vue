@@ -85,11 +85,13 @@
         <div class="d-flex flex-grow-1 p-1 justify-content-center align-items-center border border-dark">
           <div class="d-flex col-10 justify-content-center align-items-center h-100 border border-dark">
             <div v-if="activeTab === 'home'" class="w-100 h-100 d-flex justify-content-center align-items-center">
-              <img :src="userInfo.miniroomImage || 'https://via.placeholder.com/700x400/343a40/ffffff?text=미니룸+콘텐츠+영역'"
+              <img :src="userInfo.miniroomImage || 'https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9938F0375BBEF5CC21'"
                 alt="미니룸" class="img-fluid">
             </div>
 
             <div v-else-if="activeTab === 'guestbook'" class="w-100 h-100 p-3 overflow-auto">
+              <GuestbookView />
+              <!-- 여기서부터 가라 
               <div class="mb-3">
                 <h6>방명록</h6>
                 <button class="btn btn-primary btn-sm" @click="showGuestbookForm = !showGuestbookForm">
@@ -114,6 +116,8 @@
                 </div>
                 <p class="small mb-1">{{ entry.content }}</p>
               </div>
+              
+              여기까지 -->
 
               <div v-if="guestbookList.length === 0" class="text-center text-muted">
                 첫 방명록을 남겨주세요!
@@ -161,8 +165,13 @@
 <script>
 
 import axios from 'axios';
+import GuestbookView from './GuestbookView.vue'
+
 
 export default {
+  components: { GuestbookView },
+
+
   // 컴포넌트의 이름
   name: 'MiniHomepage',
 
@@ -177,7 +186,7 @@ export default {
         todayMood: null,
         statusMessage: null,
         youtubeVideoId: null,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#eeeeee',
       },
       visitCount: {
         todayCount: 0,
@@ -191,7 +200,7 @@ export default {
         { id: 2, nickname: '박일촌' },
         { id: 3, nickname: '최일촌' },
       ],
-      // 방명록 목록
+      // 방명록 목록 -- 가라여서 지울거임
       guestbookList: [
         { id: 1, author: '방문자', content: '미니홈피 정말 멋져요!', createdAt: new Date() },
         { id: 2, author: '개발자', content: '추억의 싸이월드 감성!', createdAt: new Date() },
@@ -229,6 +238,7 @@ export default {
         // API 응답 객체에서 userInfo와 visitCount를 각각 할당
         this.userInfo = response.data;
         this.visitCount = response.data.visitCount;
+        this.userInfo.backgroundColor = '#f8f9fa'; // 삭제해도돼 검정색배경이라 안보여서 추가함
 
       } catch (error) {
         // API 요청 실패 시 에러를 콘솔에 출력
@@ -249,10 +259,26 @@ export default {
           total: 0
         };
       }
+    },
+    changeTab(tabName) {
+      this.activeTab = tabName;
+    },
+
+    // 🔥 여기 추가
+    formatDate(date) {
+      if (!date) return '';
+      const d = new Date(date);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const hh = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
     }
   }
 };
 </script>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
