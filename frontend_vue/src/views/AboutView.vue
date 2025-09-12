@@ -13,21 +13,54 @@
   <div style="display: flex; flex-direction: column; gap: 10px; width: 300px; align-items: center;">
   
     <div style="display: flex; gap: 10px; align-items: center;">
-      <input type="text" placeholder="아이디(이메일)" style="flex: 1; ">
+      <input type="text" placeholder="아이디(이메일)"  v-model = "loginData.loginId" 
+      style="flex: 1; ">
     </div> 
     <div>
-      <input type="text" placeholder="비밀번호">
+      <input type="password" placeholder="비밀번호" v-model="loginData.loginPw">
     </div>
      <div style="display: flex; gap: 10px; align-items: center;">
-      <input type="button" value="로그인">
+      <input type="button" value="로그인" @click="handleLogin">
       <input type="button" value="회원가입" @click="$router.push('/')">
     </div>
    
   </div>
 </div>
-
-   
 </template>
+
+<script setup>
+import axios from 'axios'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+const loginData = ref({
+  loginId: '',
+  loginPw: ''
+})
+
+async function handleLogin() {
+  if(!loginData.value.loginId.trim() || !loginData.value.loginPw.trim()) {
+    alert('아이디와 비밀번호를 입력해주세요.')
+    return
+  }
+  
+  try {
+    await axios.post('http://localhost:8080/api/login', {
+      loginId: loginData.value.loginId,
+      loginPw: loginData.value.loginPw
+    })
+
+    alert('로그인 성공')
+    localStorage.setItem('loginId', loginData.value.loginId)
+    router.push('/')
+
+  } catch (error) {
+    alert('로그인 실패')
+  }
+}
+  
+</script>
 
 <style>
 

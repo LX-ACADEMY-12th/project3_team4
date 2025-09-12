@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api")  // ← API 경로
-@CrossOrigin(origins = "http://localhost:3000")  // ← Vue.js 개발서버 CORS
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})  // ← Vue.js 개발서버 CORS
 public class AuthController { 
 	
 	@Autowired
