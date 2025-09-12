@@ -1,24 +1,23 @@
 <template>
   <!-- 방명록 전체 -->
-  <div class="d-flex flex-column border border-dark p-3 mb-3" style="width: 800px;">
+  
     
     <!-- 방명록 아이템 반복 -->
-    <div v-for="data in guestbooks" :key="data.guestBookId" class="mb-3">
+    <div v-for="data in guestbooks" :key="data.guestBookId" class="mt-0 mb-2 ">
 
       <!-- 헤더 -->
-      <div class="row text-dark align-items-center border border-dark" style="height: 50px;">
-        <div class="col-1 small">No.{{ data.guestBookId }}</div>
-        <div class="col-1 fw-bold">{{ data.nickname }}</div>
-        <div class="col-1 ps-0">🔒</div>
-        <div class="col-5 text-muted small">({{ data.writtenAt }})</div>
-        <div class="col-4 text-end">
-          <button class="btn btn-sm btn-danger" @click="goToDelete(data.guestBookId)">삭제</button>
+      <div class="row text-dark align-items-center border border-dark">
+        <div class="col-1 small ps-1">No.{{ data.guestBookId }}</div>
+        <div class="col-3 small fw-bold">{{ data.nickname }} 🔒</div>
+        <div class="col-6 text-muted small ps-0">({{ data.writtenAt }})</div>
+        <div class="col-2 text-end">
+          <button class="btn btn-sm" @click="goToDelete(data.guestBookId)">| 삭제</button>
         </div>
       </div>
 
       <!-- 본문 -->
       <div class="row text-dark align-items-center border border-dark">
-        <div class="mt-2 mb-3 d-flex border border-dark p-3">
+        <div class="mt-2 mb-3 d-flex border border-dark">
           <!-- 아이콘 -->
           <div class="me-3">
             <img
@@ -37,7 +36,7 @@
 
     <!-- 푸터 (입력창) -->
     <div class="row text-dark align-items-center border border-dark mt-3">
-      <div class="col-11">
+      <div class="col-11 ps-0">
         <!-- v-model 연결 -->
         <input 
           type="text" 
@@ -46,13 +45,13 @@
           @keyup.enter="goToInsert"
         >
       </div>
-      <div class="col-1">
+      <div class="col-1 ps-0">
         <!-- data 넘기지 말고 그냥 호출 -->
         <button class="btn btn-primary" @click="goToInsert()">ok</button>
       </div>
     </div>
 
-  </div>
+ 
 </template>
 
 <script setup>
