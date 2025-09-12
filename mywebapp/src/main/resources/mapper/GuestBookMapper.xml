@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.mywebapp.mapper.GuestBookMapper">
+
+	<!-- 리스트를 보여줍시당 -->
+	<select id="getGuestBookList" resultType="com.team4.mywebapp.dto.GuestBookDTO">
+		SELECT 
+			gb.guestbook_id AS guestBookId
+			, gb.guestbook_content AS guestBookContent
+			, gb.written_at AS writtenAt
+			, gb.guestbook_minihome_id AS guestBookMiniHomeId
+			, gb.guestbook_writer_id AS guestBookWriterId,
+		    u.nickname AS nickname
+		FROM 
+			guestbook AS gb JOIN user AS u ON gb.guestbook_writer_id = u.user_id
+		WHERE gb.guestbook_minihome_id = #{guestBookMiniHomeId}
+	</select>
+	
+	<!-- 방명록 추가 -->
+	<insert id="insertGuestBook" parameterType="GuestBookDTO">
+	  INSERT INTO guestbook (
+	    guestbook_content,
+	    written_at,
+	    guestbook_minihome_id,
+	    guestbook_writer_id
+	  )
+	  VALUES (
+	    #{guestBookContent},
+	    NOW(),
+	    #{guestBookMiniHomeId},
+	    #{guestBookWriterId}
+	  )
+	</insert>
+
+    
+    <!-- 삭제를 할거임 -->
+    <delete id="deleteGuestBook" parameterType="long">
+    	delete from guestbook where guestbook_id = #{guestBookId}
+    </delete>
+    
+    <!-- 한개만 가져오는 쿼리 : 근데 수정안할거니까 필요 없을듯? 
+    <select id="getGuestOne" parameterType="int" resultType="GuestBookDTO">
+		select guestbook_id guestBookId
+			, guestbook_content guestBookContent
+			, written_at writtenAt
+			, guestbook_minihome_id guestBookMiniHomeId 
+			, guestbook_reply_id guestBookReplyId,
+			guestbook_writer_id guestBookWriterId
+		from guestbook
+		where guestbook_id = #{guestBookId}
+	</select>
+    -->
+</mapper>

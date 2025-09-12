@@ -1,526 +1,297 @@
 <template>
-  <div class="minihompy-wrapper">
-    <div class="cyworld-container">
-
-      <!-- 메인 미니홈피 영역 -->
-      <div class="main-area">
-        <div class="hompy-frame">
-
-          <!-- 상단 헤더 -->
-          <div class="header">
-            <div class="visitor-counter">
-              TODAY 5명 | TOTAL 123명
-            </div>
-            <div class="title">
-              {{ nickname }}님의 미니홈피
-            </div>
-          </div>
-
-          <!-- 메인 컨텐츠 -->
-          <div class="content">
-            <div class="sidebar">
-              <div class="profile">
-                <div class="mood">TODAY IS 😊</div>
-                <div class="photo">프로필 사진</div>
-                <div class="message">안녕하세요!</div>
-                <div class="info">{{ nickname }} / 25세</div>
-                <div class="friends">일촌 & 파도타기</div>
-              </div>
-            </div>
-
-            <!-- 메인 컨텐츠 + 우측 탭 -->
-            <div class="main-content-wrapper">
-
-              <!-- 미니룸 -->
-              <div class="miniroom">
-                미니룸 영역 (미니미)
-              </div>
-
-              <!-- 탭 컨텐츠 + 우측 탭 버튼 -->
-              <div class="tab-container">
-
-                <!-- 컨텐츠 영역 -->
-                <div class="tab-content-area">
-                  <!-- 사진첩 -->
-                  <div v-if="activeTab === 'photos'" class="photos-content">
-                    <div class="content-header">
-                      <h5>📷 사진첩</h5>
-                      <button v-if="isOwner" class="btn-upload">사진 올리기</button>
-                    </div>
-
-                    <div class="photo-grid">
-                      <div class="photo-item" v-for="i in 6" :key="i">
-                        <div class="photo-thumb">사진{{ i }}</div>
-                      </div>
-                    </div>
-
-                    <div class="no-content" v-if="photos.length === 0">
-                      <i class="icon">📷</i>
-                      <p>사진이 없습니다</p>
-                    </div>
-                  </div>
-
-                  <!-- 방명록 -->
-                  <div v-if="activeTab === 'guestbook'" class="guestbook-content">
-                    <div class="content-header">
-                      <h5>📖 방명록</h5>
-                      <span class="count">총 {{ guestbookCount }}개</span>
-                    </div>
-
-                    <!-- 방명록 작성 -->
-                    <div class="guestbook-write">
-                      <textarea v-model="newMessage" placeholder="방명록을 남겨보세요..." rows="3"></textarea>
-                      <button @click="writeGuestbook">확인</button>
-                    </div>
-
-                    <!-- 방명록 목록 -->
-                    <div class="guestbook-list">
-                      <div class="guestbook-item" v-for="item in guestbookList" :key="item.id">
-                        <div class="item-header">
-                          <strong>{{ item.writer }}</strong>
-                          <span class="date">{{ item.date }}</span>
-                        </div>
-                        <div class="item-content">{{ item.content }}</div>
-                      </div>
-                    </div>
-
-                    <div class="no-content" v-if="guestbookList.length === 0">
-                      <i class="icon">📖</i>
-                      <p>방명록이 없습니다</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 우측 탭 버튼들 -->
-                <div class="tab-buttons-right">
-                  <div class="tab-button" :class="{ active: activeTab === 'photos' }" @click="activeTab = 'photos'">
-                    <div class="tab-icon">📷</div>
-                    <div class="tab-text">사진첩</div>
-                  </div>
-
-                  <div class="tab-button" :class="{ active: activeTab === 'guestbook' }"
-                    @click="activeTab = 'guestbook'">
-                    <div class="tab-icon">📖</div>
-                    <div class="tab-text">방명록</div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-
+  <div class="d-flex flex-column p-3"
+    :style="{ 'font-family': 'DotGothic16, sans-serif', 'height': '700px', 'width': '900px', 'background-color': userInfo.backgroundColor }">
+    <div class=" d-flex p-2 mb-3 text-black justify-content-between align-items-center">
+      <div class="d-flex flex-column ms-4 me-4 align-items-center border border-dark">
+        <span class="m-3">{{ userInfo.nickname || '사용자' }}님의 미니홈피</span>
+        <div class="border border-dark">
+          <span class="badge bg-danger me-1">TODAY {{ visitCount?.todayCount || '13' }}</span>
+          <span class="badge bg-secondary">TOTAL {{ visitCount?.totalCount || '13' }}</span>
         </div>
       </div>
 
-      <!-- 우측 사이드바 -->
-      <div class="right-sidebar">
-        <div class="bgm">
-          🎵 BGM 영역
+      <div class="border border-dark col-8 mx-auto">
+        <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD">
+      </div>
+
+      <div>
+        <button class="btn btn-sm btn-outline-info">
+          수정
+        </button>
+      </div>
+    </div>
+
+    <div class="d-flex flex-fill flex-row">
+      <div class="d-flex flex-column bg-white p-3 me-3">
+        <div class="d-flex flex-column align-items-center h-75 mb-3 border border-dark">
+          <div class="mt-1 mb-1 h-75 w-100">
+            <img :src="userInfo.profileImage || 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Profile'"
+              class="border p-1 img-fluid" alt="프로필 사진" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+
+          <div class="flex-grow-1 align-items-center w-100 p-1">
+            <small class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</small>
+          </div>
         </div>
-        <div class="buttons">
-          <button>내 미니홈피</button>
-          <button>로그아웃</button>
+
+        <div class="d-flex flex-column align-items-center mb-3 border border-dark text-center">
+          <p class="small w-100">{{ userInfo.statusMessage || '사용자 작성 멘트' }}</p>
+        </div>
+
+        <div class="border border-dark">
+          <div class="d-flex align-items-center">
+            <span class="small me-1">홈주인</span>
+            <span class="small">{{ userInfo.nickname || '나' }}</span>
+          </div>
+
+          <div class="dropdown">
+            <button
+              class="btn btn-outline-secondary btn-sm dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+              type="button" data-bs-toggle="dropdown">
+              <span>★ 일촌 파도타기</span>
+            </button>
+            <ul class="dropdown-menu w-100">
+              <li v-for="friend in friendsList" :key="friend.id">
+                <a class="dropdown-item small" href="#" @click="visitFriend(friend.id)">
+                  {{ friend.nickname }}
+                </a>
+              </li>
+              <li v-if="friendsList.length === 0">
+                <span class="dropdown-item small text-muted">일촌이 없습니다</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
+      <div class="d-flex flex-grow-1 flex-column col-8 border border-black">
+        <div class="d-flex border border-dark h-25">
+          <div class="d-flex col-8 justify-content-center align-items-center">
+            <span class="w-100 text-center">{{ userInfo.emptySpaceText || '빈공간' }}</span>
+          </div>
+
+          <div class="d-flex flex-grow-1 p-2" v-if="userInfo.youtubeVideoId">
+            <iframe :src="`https://www.youtube.com/embed/${userInfo.youtubeVideoId}`" frameborder="0"
+              style="width: 100%; height: 100%;"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          <div class="d-flex flex-grow-1 p-2 justify-content-center align-items-center bg-light" v-else>
+            <span class="text-muted">동영상 없음</span>
+          </div>
+        </div>
+
+        <div class="d-flex flex-grow-1 p-1 justify-content-center align-items-center border border-dark">
+          <div class="d-flex col-10 justify-content-center align-items-center h-100 border border-dark">
+            <div v-if="activeTab === 'home'" class="w-100 h-100 d-flex justify-content-center align-items-center">
+              <img :src="userInfo.miniroomImage || 'https://via.placeholder.com/700x400/343a40/ffffff?text=미니룸+콘텐츠+영역'"
+                alt="미니룸" class="img-fluid">
+            </div>
+
+            <div v-else-if="activeTab === 'guestbook'" class="w-100 h-100 p-3 overflow-auto">
+              <div class="mb-3">
+                <h6>방명록</h6>
+                <button class="btn btn-primary btn-sm" @click="showGuestbookForm = !showGuestbookForm">
+                  글쓰기
+                </button>
+              </div>
+
+              <div v-if="showGuestbookForm" class="border p-2 mb-3 bg-light">
+                <div class="mb-2">
+                  <input v-model="newGuestbook.author" placeholder="작성자" class="form-control form-control-sm mb-1">
+                  <textarea v-model="newGuestbook.content" placeholder="내용을 입력하세요" class="form-control form-control-sm"
+                    rows="3"></textarea>
+                </div>
+                <button @click="addGuestbook" class="btn btn-success btn-sm me-1">등록</button>
+                <button @click="showGuestbookForm = false" class="btn btn-secondary btn-sm">취소</button>
+              </div>
+
+              <div v-for="entry in guestbookList" :key="entry.id" class="border-bottom py-2">
+                <div class="d-flex justify-content-between">
+                  <strong class="small">{{ entry.author }}</strong>
+                  <small class="text-muted">{{ formatDate(entry.createdAt) }}</small>
+                </div>
+                <p class="small mb-1">{{ entry.content }}</p>
+              </div>
+
+              <div v-if="guestbookList.length === 0" class="text-center text-muted">
+                첫 방명록을 남겨주세요!
+              </div>
+            </div>
+
+            <div v-else-if="activeTab === 'photos'" class="w-100 h-100 p-3 overflow-auto">
+              <h6>사진첩</h6>
+              <div class="row">
+                <div v-for="photo in photosList" :key="photo.id" class="col-4 mb-2">
+                  <img :src="photo.url" :alt="photo.title" class="img-fluid border" @click="viewPhoto(photo)">
+                  <small class="d-block text-center">{{ photo.title }}</small>
+                </div>
+                <div v-if="photosList.length === 0" class="text-center text-muted w-100">
+                  사진이 없습니다
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-column h-100 flex-grow-1 justify-content-start">
+            <div class="d-flex flex-column flex-grow-1 justify-content-start">
+              <ul class="nav nav-tabs flex-column">
+                <li class="nav-item border border-dark">
+                  <a class="nav-link" :class="{ active: activeTab === 'home' }" href="#"
+                    @click.prevent="activeTab = 'home'">홈</a>
+                </li>
+                <li class="nav-item border border-dark">
+                  <a class="nav-link" :class="{ active: activeTab === 'guestbook' }" href="#"
+                    @click.prevent="changeTab('guestbook')">방명록</a>
+                </li>
+                <li class="nav-item border border-dark">
+                  <a class="nav-link" :class="{ active: activeTab === 'photos' }" href="#"
+                    @click.prevent="changeTab('photos')">사진첩</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script>
 
-const nickname = ref('홍길동')
-const activeTab = ref('photos')
-const isOwner = ref(true)
-const photos = ref([])
-const guestbookCount = ref(5)
-const newMessage = ref('')
+import axios from 'axios';
 
-const guestbookList = ref([
-  { id: 1, writer: '친구1', content: '안녕하세요! 놀러왔어요~', date: '12-25' },
-  { id: 2, writer: '친구2', content: '미니홈피 예쁘네요!', date: '12-24' },
-  { id: 3, writer: '친구3', content: '메리크리스마스!', date: '12-24' }
-])
+export default {
+  // 컴포넌트의 이름
+  name: 'MiniHomepage',
 
-const writeGuestbook = () => {
-  if (newMessage.value.trim()) {
-    guestbookList.value.unshift({
-      id: Date.now(),
-      writer: '방문자',
-      content: newMessage.value,
-      date: new Date().toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
-    })
-    newMessage.value = ''
-    guestbookCount.value++
+  // 모든 데이터를 'data' 안에 직접 작성합니다.
+  data() {
+    return {
+      // API 호출 전 초기 상태는 null 또는 빈 객체로 설정
+      userInfo: {
+        userId: null,
+        nickname: null,
+        profileImagePath: null,
+        todayMood: null,
+        statusMessage: null,
+        youtubeVideoId: null,
+        backgroundColor: '#FFFFFF',
+      },
+      visitCount: {
+        todayCount: 0,
+        totalCount: 0
+      },
+      logInUserId: "leesuji", // 로그인한 사용자 ID (임시값) <- 세션 정보로 불러와야 함.
+
+      // 친구 목록: 배열로 여러 개의 객체를 넣습니다.
+      friendsList: [
+        { id: 1, nickname: '김일촌' },
+        { id: 2, nickname: '박일촌' },
+        { id: 3, nickname: '최일촌' },
+      ],
+      // 방명록 목록
+      guestbookList: [
+        { id: 1, author: '방문자', content: '미니홈피 정말 멋져요!', createdAt: new Date() },
+        { id: 2, author: '개발자', content: '추억의 싸이월드 감성!', createdAt: new Date() },
+      ],
+      // 사진첩 목록
+      photosList: [
+        { id: 1, url: 'https://placehold.co/150/ff0000/ffffff?text=사진1', title: '여행사진' },
+        { id: 2, url: 'https://placehold.co/150/00ff00/ffffff?text=사진2', title: '강아지' },
+        { id: 3, url: 'https://placehold.co/150/0000ff/ffffff?text=사진3', title: '하늘' },
+      ],
+      // UI 상태 관리 변수
+      activeTab: 'home',
+      showGuestbookForm: false,
+      newGuestbook: {
+        author: '',
+        content: '',
+      },
+    };
+  },
+
+  // 라이프사이클 훅으로, 컴포넌트의 인스턴스가 DOM에 완전 연결되고 렌더링 된 후 호출
+  mounted() {
+    // 사용자 정보를 가져오는 메서드실행
+    this.fetchUserInfo(this.logInUserId); // 로그인 사용자 ID로 정보 조회
+  },
+
+  // 컴포넌트가 사용할 메서드(함수)
+  methods: {
+
+    // user 정보 가져오기
+    async fetchUserInfo(logInUserId) {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/my-minihome?loginUserId=${logInUserId}`);
+
+        // API 응답 객체에서 userInfo와 visitCount를 각각 할당
+        this.userInfo = response.data;
+        this.visitCount = response.data.visitCount;
+
+      } catch (error) {
+        // API 요청 실패 시 에러를 콘솔에 출력
+        console.error("사용자 정보를 가져오는데 실패했습니다.", error);
+
+        // 에러 발생 시 가짜 데이터 할당
+        this.userInfo = {
+          nickname: '에러',
+          profileImage: 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Error',
+          todayMood: '[에러]',
+          statusMessage: '데이터를 불러오지 못했습니다.',
+          emptySpaceText: '정보 로딩 실패',
+          youtubeVideoId: null,
+          backgroundColor: '#FFFFFF' // 에러 시 기본 배경색
+        };
+        this.visitCount = {
+          today: 0,
+          total: 0
+        };
+      }
+    }
   }
-}
+};
 </script>
 
 <style scoped>
-.minihompy-wrapper {
-  width: 100vw;
-  height: 100vh;
-  background: #E6F3FF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+.bg-text-black {
+  background-color: black;
+  color: white;
 }
 
-.cyworld-container {
-  width: 95%;
-  height: 95%;
-  display: flex;
-  gap: 20px;
+.nav-tabs .nav-link {
+  border-radius: 0;
+  font-size: 0.875rem;
 }
 
-.main-area {
-  flex: 3;
-  background: #90EE90;
-  border-radius: 15px;
-  padding: 20px;
+.nav-tabs .nav-link.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
 }
 
-.hompy-frame {
-  width: 100%;
-  height: 100%;
-  background: white;
-  border-radius: 10px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
+.dropdown-menu {
+  font-size: 0.875rem;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 2px solid #eee;
-  margin-bottom: 15px;
+.badge {
+  font-size: 0.75rem;
 }
 
-.visitor-counter {
-  background: #FFE4E1;
-  padding: 5px 10px;
-  border: 1px solid #FF69B4;
-  border-radius: 5px;
-  font-size: 12px;
-  color: #8B008B;
-  font-weight: bold;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-}
-
-.content {
-  flex: 1;
-  display: flex;
-  gap: 15px;
-}
-
-.sidebar {
-  width: 180px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 10px;
-}
-
-.profile>div {
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #eee;
-  border-radius: 3px;
-  text-align: center;
-  font-size: 13px;
-}
-
-.photo {
-  height: 120px;
-  background: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999;
-}
-
-.main-content-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.miniroom {
-  height: 120px;
-  background: #E8F4FD;
-  border: 2px solid #4169E1;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #666;
-  font-weight: bold;
-}
-
-/* 탭 컨테이너 - 우측 탭 형식 */
-.tab-container {
-  flex: 1;
-  display: flex;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  background: white;
-}
-
-.tab-content-area {
-  flex: 1;
-  padding: 15px;
-  overflow-y: auto;
-}
-
-/* 우측 탭 버튼들 */
-.tab-buttons-right {
-  width: 80px;
-  background: #f8f9fa;
-  border-left: 2px solid #ddd;
-  display: flex;
-  flex-direction: column;
-}
-
-.tab-button {
-  height: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border-bottom: 1px solid #ddd;
-  transition: all 0.2s;
-  background: #f8f9fa;
-  color: #666;
-}
-
-.tab-button:last-child {
-  border-bottom: none;
-}
-
-.tab-button:hover {
-  background: #e9ecef;
-}
-
-.tab-button.active {
-  background: white;
-  color: #4169E1;
-  border-left: 3px solid #4169E1;
-  margin-left: -2px;
-}
-
-.tab-icon {
-  font-size: 20px;
-  margin-bottom: 5px;
-}
-
-.tab-text {
-  font-size: 11px;
-  font-weight: bold;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-}
-
-/* 컨텐츠 스타일 */
-.content-header {
-  display: flex;
-  justify-content: between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
+.guestbook-entry {
   border-bottom: 1px solid #eee;
+  padding: 10px 0;
 }
 
-.content-header h5 {
-  margin: 0;
-  color: #333;
-}
-
-.count {
-  font-size: 12px;
-  color: #666;
-}
-
-.btn-upload {
-  padding: 5px 10px;
-  background: #4169E1;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  font-size: 12px;
+.photo-thumbnail {
   cursor: pointer;
+  transition: transform 0.2s;
 }
 
-/* 사진첩 스타일 */
-.photo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
-}
-
-.photo-item {
-  aspect-ratio: 1;
-}
-
-.photo-thumb {
-  width: 100%;
-  height: 100%;
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  color: #999;
-  cursor: pointer;
-}
-
-.photo-thumb:hover {
-  background: #e0e0e0;
-}
-
-/* 방명록 스타일 */
-.guestbook-write {
-  background: #f8f9fa;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 15px;
-}
-
-.guestbook-write textarea {
-  width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  padding: 8px;
-  font-size: 12px;
-  resize: vertical;
-  margin-bottom: 8px;
-}
-
-.guestbook-write button {
-  padding: 5px 15px;
-  background: #4169E1;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  font-size: 12px;
-  cursor: pointer;
-  float: right;
-}
-
-.guestbook-list {
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-.guestbook-item {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 8px;
-}
-
-.guestbook-item:last-child {
-  border-bottom: none;
-}
-
-.item-header {
-  display: flex;
-  justify-content: between;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.item-header strong {
-  font-size: 13px;
-  color: #333;
-}
-
-.date {
-  font-size: 11px;
-  color: #999;
-}
-
-.item-content {
-  font-size: 12px;
-  color: #555;
-  line-height: 1.4;
-}
-
-.no-content {
-  text-align: center;
-  padding: 40px 20px;
-  color: #999;
-}
-
-.no-content .icon {
-  font-size: 40px;
-  margin-bottom: 10px;
-  display: block;
-}
-
-/* 우측 사이드바 */
-.right-sidebar {
-  width: 250px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.bgm {
-  height: 200px;
-  background: #6c757d;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-.buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.buttons button {
-  padding: 15px;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.buttons button:hover {
-  background: #f8f9fa;
-}
-
-/* 스크롤바 스타일 */
-.tab-content-area::-webkit-scrollbar,
-.guestbook-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.tab-content-area::-webkit-scrollbar-track,
-.guestbook-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.tab-content-area::-webkit-scrollbar-thumb,
-.guestbook-list::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+.photo-thumbnail:hover {
+  transform: scale(1.05);
 }
 </style>
