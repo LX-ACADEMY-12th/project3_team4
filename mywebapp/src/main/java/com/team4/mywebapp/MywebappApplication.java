@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @SpringBootApplication
-@MapperScan("UserMapper")
+@MapperScan("com.team4.mywebapp.mapper") 
 public class MywebappApplication {
 
 	public static void main(String[] args) {
