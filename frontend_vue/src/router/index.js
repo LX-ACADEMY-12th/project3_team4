@@ -6,7 +6,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: 'minihome',
       component: MiniHomeView,
     },
     {
@@ -18,6 +18,16 @@ const router = createRouter({
       path: '/guestbook',
       name: 'guestbook',
       component: () => import('../views/GuestbookView.vue'),
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('../views/HomeView.vue'),
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/AboutView.vue'),
     },
   ],
 })
