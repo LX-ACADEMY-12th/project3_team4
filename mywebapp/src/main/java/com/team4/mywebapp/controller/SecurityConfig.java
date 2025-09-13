@@ -1,4 +1,4 @@
-package com.team4.mywebapp.config;
+package com.team4.mywebapp.controller;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
