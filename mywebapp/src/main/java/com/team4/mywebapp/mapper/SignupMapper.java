@@ -10,6 +10,6 @@ public interface SignupMapper {
 	int insertUser(SignupDto inputUser);
 	
 	// 아이디 중복확인
-	int checkLoginIdExists(String inputUserId);
+	int checkLoginIdExists(String loginId);
 	
 }

@@ -3,7 +3,7 @@
 <mapper namespace="com.team4.mywebapp.mapper.SignupMapper">
 	<insert id="insertUser" parameterType="com.team4.mywebapp.dto.SignupDto">
 		insert into user (
-			, login_id
+			login_id
 			, login_pw
 			, nickname
 		)
