@@ -6,7 +6,7 @@
 <!-- 전체 테마 조회 -->
 <select id="getAllThemes" resultType="com.team4.mywebapp.dto.ThemeDto">
 	SELECT
-		, theme_id as themeId
+		theme_id as themeId
 		, name
 		, category
 		, style_info as styleInfo
