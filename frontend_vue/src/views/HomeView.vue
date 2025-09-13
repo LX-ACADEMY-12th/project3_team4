@@ -9,21 +9,60 @@ const router = useRouter()
 const loginInfo = ref({
   loginId: '',
   nickname: '',
-  password: '',
-  passwordConfirm: ''
+  loginPw: '',
+  loginPwConfirm: ''
 })
 
-// 회원가입 함수
-const signup = async () => {
+// 중복확인 상태
+const isDuplicateChecked = ref(false)
+const isIdAvailable = ref(false)
+
+// 아이디 중복 체크 함수
+const checkDuplicate = async () => {
+  if (!loginInfo.value.loginId) {
+    alert('아이디를 입력해주세요.')
+    return
+  }
+
   try {
-    // 입력값 검증
-    if (!loginInfo.value.loginId || !loginInfo.value.nickname || !loginInfo.value.password || !loginInfo.value.passwordConfirm) {
-      alert('모든 필드를 입력해주세요.')
-      return
+    const response = await axios.post('http://localhost:8080/api/checkDuplicate', {
+      loginId: loginInfo.value.loginId
+    })
+
+    if (response.data === 'available') {
+      alert('사용 가능한 아이디입니다.')
+      isDuplicateChecked.value = true
+      isIdAvailable.value = true
+    } else if (response.data === 'duplicate') {
+      alert('이미 사용 중인 아이디입니다.')
+      isDuplicateChecked.value = true
+      isIdAvailable.value = false
+    } else {
+      alert('중복확인 중 오류가 발생했습니다.')
+      isDuplicateChecked.value = false
+      isIdAvailable.value = false
     }
 
-    if (loginInfo.value.password !== loginInfo.value.passwordConfirm) {
-      alert('비밀번호가 일치하지 않습니다.')
+  } catch (error) {
+    console.error('중복 체크 오류:', error)
+    alert('서버 연결에 실패했습니다.')
+    isDuplicateChecked.value = false
+    isIdAvailable.value = false
+  }
+}
+
+// 아이디 입력값이 변경되면 중복확인 상태 초기화
+const onLoginIdChange = () => {
+  isDuplicateChecked.value = false
+  isIdAvailable.value = false
+}
+
+// 회원가입 함수 (클라이언트에서 중복확인 체크)
+const signup = async () => {
+  try {
+    // 클라이언트에서 중복확인 체크
+    if (!isDuplicateChecked.value || !isIdAvailable.value) {
+      alert('아이디 중복확인을 먼저 해주세요.')
       return
     }
 
@@ -31,15 +70,13 @@ const signup = async () => {
     const response = await axios.post('http://localhost:8080/api/insert', {
       loginId: loginInfo.value.loginId,
       nickname: loginInfo.value.nickname,
-      password: loginInfo.value.password
+      loginPw: loginInfo.value.loginPw
     })
 
     // 응답 처리
     if (response.data === 'success') {
       alert('회원가입이 완료되었습니다!')
       router.push('/login') // 로그인 페이지로 이동
-    } else if (response.data === 'duplicate') {
-      alert('이미 사용 중인 아이디입니다.')
     } else if (response.data === 'fail') {
       alert('회원가입에 실패했습니다. 다시 시도해주세요.')
     } else {
@@ -49,23 +86,6 @@ const signup = async () => {
   } catch (error) {
     console.error('회원가입 오류:', error)
     alert('서버 연결에 실패했습니다.')
-  }
-}
-
-// 아이디 중복 체크 함수 (옵션)
-const checkDuplicate = async () => {
-  if (!loginInfo.value.loginId) {
-    alert('아이디를 입력해주세요.')
-    return
-  }
-
-  try {
-    // 중복 체크를 위한 별도 API가 있다면 여기서 호출
-    // 현재는 회원가입 시에만 중복 체크를 하므로 임시로 메시지만 표시
-    alert('회원가입 시 중복 체크가 진행됩니다.')
-  } catch (error) {
-    console.error('중복 체크 오류:', error)
-    alert('중복 체크에 실패했습니다.')
   }
 }
 </script>
@@ -86,8 +106,8 @@ const checkDuplicate = async () => {
     <div style="display: flex; flex-direction: column; gap: 10px; width: 300px; align-items: center;">
       <div style="display: flex; gap: 10px; align-items: center;">
         <input
-          type="email"
-          placeholder="아이디(이메일)"
+          type="text"
+          placeholder="아이디"
           style="flex: 1;"
           v-model="loginInfo.loginId"
           @input="onLoginIdChange"
@@ -121,7 +141,7 @@ const checkDuplicate = async () => {
         <input
           type="password"
           placeholder="비밀번호"
-          v-model="loginInfo.password"
+          v-model="loginInfo.loginPw"
         >
       </div>
 
@@ -129,7 +149,7 @@ const checkDuplicate = async () => {
         <input
           type="password"
           placeholder="비밀번호 확인"
-          v-model="loginInfo.passwordConfirm"
+          v-model="loginInfo.loginPwConfirm"
         >
       </div>
 
@@ -137,7 +157,7 @@ const checkDuplicate = async () => {
         <input
           type="button"
           value="가입"
-          @click="signup"
+          @click="signup()"
           style="cursor: pointer;"
         >
         <input
