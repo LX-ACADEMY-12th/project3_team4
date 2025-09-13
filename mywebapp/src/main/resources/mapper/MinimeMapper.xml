@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.team4.mywebapp.mapper.SignupMapper">
-
+<mapper namespace="com.team4.mywebapp.mapper.MinimeMapper">
+	<select id="getMinime" parameterType="int" resultType="com.team4.mywebapp.dto.MinimeDto">
+		select * from minime where minime_id = #{minimeId}
+	</select>
+	<update id="updateMinime" parameterType="com.team4.mywebapp.dto.MinimeDto">
+		update minime
+		set name = #{name}
+			, image_path = #{imagePath}
+		where minime_id = #{minimeId}
+	</update>
 </mapper>

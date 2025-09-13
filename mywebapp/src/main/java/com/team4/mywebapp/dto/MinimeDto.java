@@ -1,15 +1,15 @@
 package com.team4.mywebapp.dto;
 
 public class MinimeDto {
-	private int minime_id;
+	private int minimeId;
 	private String name;
-	private String image_path;
+	private String imagePath;
 	
-	public int getMinime_id() {
-		return minime_id;
+	public int getMinimeId() {
+		return minimeId;
 	}
-	public void setMinime_id(int minime_id) {
-		this.minime_id = minime_id;
+	public void setMinimeId(int minimeId) {
+		this.minimeId = minimeId;
 	}
 	public String getName() {
 		return name;
@@ -17,12 +17,14 @@ public class MinimeDto {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getImage_path() {
-		return image_path;
+	public String getImagePath() {
+		return imagePath;
 	}
-	public void setImage_path(String image_path) {
-		this.image_path = image_path;
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
 	}
+	
+	
 	
 	
 }
