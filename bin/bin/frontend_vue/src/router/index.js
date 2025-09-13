@@ -19,11 +19,6 @@ const router = createRouter({
       name: 'guestbook',
       component: () => import('../views/GuestbookView.vue'),
     },
-    {
-      path: '/signup',
-      name: 'signup',
-      component: () => import('../views/HomeView.vue'),
-    },
   ],
 })
 
