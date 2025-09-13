@@ -78,7 +78,7 @@ const perPage = 2            // 🔥 한 화면에 2개 고정
 const currentPage = ref(1)   // 현재 페이지
 
 onMounted(() => {
-  requestGuestBookList(1, 1, perPage)
+  requestGuestBookList(1, 1, 2)
 })
 
 // 리스트 조회 (프론트에서 slice)
@@ -148,7 +148,7 @@ async function goToInsert() {
 
 /* 🔥 방명록 전체 높이 제한 */
 .guestbook-container {
-  max-height: 100%;       /* 부모 h-100 채우기 */
+  max-height: 80%;       /* 부모 h-100 채우기 */
   overflow-y: auto;       /* 넘치면 스크롤 */
 }
 </style>
