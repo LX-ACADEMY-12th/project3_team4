@@ -14,7 +14,7 @@
 		)
 	</insert>
 	
-	<select id="checkLoginIdExists" parameterType="com.team4.mywebapp.dto.SignupDto" resultType="int">
+	<select id="checkLoginIdExists" parameterType="String" resultType="int">
 		select count(*)
 		from user
 		where login_id = #{loginId}
