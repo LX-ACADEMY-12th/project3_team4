@@ -281,10 +281,11 @@ export default {
     // 미니홈피 화면 데이터를 띄울거임
     async fetchMinihome(userId) {
       try {
-        const { data } = await axios.get('http://localhost:8080/showMiniHome', {
+        const { data } = await axios.get('http://localhost:8080/api/showMiniHome', {
           params: { userId },
         })
-
+        
+        console.log('서버에서 받은 데이터:', data)  // 확인용
         // 서버 DTO 그대로 매핑
         this.userInfo = {
           userId: data.userId,
@@ -311,21 +312,27 @@ export default {
     },
 
     async toggleEdit() {
-      if (this.isEditing) {
-        try {
-          const response = await axios.post('http://localhost:8080/minihome-update', this.userInfo)
-          if (response.data > 0) {
-            alert('저장 완료')
-            this.isEditing = false
-          }     
-      } catch (error) {
-        console.error('저장 실패', error)
-        alert('저장 실패')
-      }
-      } else {
-        this.isEditing = true
-      }
-    },
+  if (this.isEditing) {
+    try {
+      console.log('요청 URL:', 'http://localhost:8080/api/minihome-update')
+      console.log('전송 데이터:', this.userInfo)
+      
+      const response = await axios.post('http://localhost:8080/api/minihome-update', this.userInfo)
+      
+      console.log('응답:', response.data)
+      if (response.data > 0) {
+        alert('저장 완료')
+        this.isEditing = false
+      }     
+    } catch (error) {
+      console.error('전체 에러:', error)
+      console.error('응답 에러:', error.response)
+      alert('저장 실패')
+    }
+  } else {
+    this.isEditing = true
+  }
+},
 
     onFileChange(e) {
       const file = e.target.files[0]
