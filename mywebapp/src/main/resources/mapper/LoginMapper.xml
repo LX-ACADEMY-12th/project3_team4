@@ -3,10 +3,11 @@
 <mapper namespace="com.team4.mywebapp.mapper.LoginMapper">
 
 	<!-- 로그인 -->
-	<select id="authenticateUser" resultType="com.team4.mywebapp.dto.LoginDto">
-		SELECT 
-			login_id, 
-			login_pw
+	<select id="authenticateUser" resultType="com.team4.mywebapp.dto.UserDto">
+		SELECT 		
+			login_id,
+			user_id,
+			nickname 
 		FROM 
 			user
 		WHERE 

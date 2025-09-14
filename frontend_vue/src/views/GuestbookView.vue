@@ -1,163 +1,483 @@
 <template>
   <div class="guestbook-container">
+    <!-- 로딩 상태 -->
+    <div v-if="isLoading" class="loading">
+      로딩중...
+    </div>
 
-    <div v-for="data in guestbooks" :key="data.guestBookId" class="mt-0 mb-2 d-flex flex-column">
+    <!-- 방명록 목록 -->
+    <div v-else class="guestbook-list">
+      <div v-for="data in guestbooks" :key="data.guestBookId" class="guestbook-item">
+        <!-- 방명록 헤더 -->
+        <div class="guestbook-header">
+          <!-- <span class="guestbook-number">No.{{ data.guestBookId }}</span> -->
+          <span class="author-name">{{ data.nickname }}</span>
+          <span class="write-date">{{ formatDate(data.writtenAt) }}</span>
+          <button v-if="canDelete(data)" class="delete-btn" @click="confirmDelete(data.guestBookId)"
+            :disabled="isDeleting">
+            삭제
+          </button>
+        </div>
 
-      <div class="row text-dark align-items-center border border-dark">
-        <div class="col-1 small ps-1">No.{{ data.guestBookId }}</div>
-        <div class="col-3 small fw-bold">{{ data.nickname }} 🔒</div>
-        <div class="col-6 text-muted small ps-0">({{ data.writtenAt }})</div>
-        <div class="col-2 text-end">
-          <button class="btn btn-sm" @click="goToDelete(data.guestBookId)">| 삭제</button>
+        <!-- 방명록 내용 -->
+        <div class="guestbook-content">
+          <div class="profile-section">
+            <div class="profile-placeholder"></div>
+          </div>
+          <div class="message-section">
+            <p class="message-text">{{ data.guestBookContent }}</p>
+          </div>
         </div>
       </div>
 
-      <div class="row text-dark align-items-center border border-dark">
-        <div class="mt-1 mb-2 d-flex border border-dark p-2">
-          <div class="me-2">
-            <img
-              src="https://i.namu.wiki/i/5dbYIx9wSf1tIJGRb5NO8-fgK5YWOCMJA2Q-cEpsOOOFPlxhyqAUhhV5Cm87Pnanhb5-TpoXKFs9P2AZDGjFUQ.webp"
-              alt="icon" class="bab" />
-          </div>
-          <div class="flex-grow-1">
-            <p class="mb-1 mt-1 small text-dark">{{ data.guestBookContent }}</p>
-          </div>
-        </div>
+      <!-- 데이터가 없을 때 -->
+      <div v-if="guestbooks.length === 0" class="empty-state">
+        방명록이 없습니다.
       </div>
     </div>
 
-    <div class="row text-dark align-items-center border border-dark mt-3">
-      <div class="col-11 ps-0">
-        <input type="text" class="form-control w-100" v-model="newContent" @keyup.enter="goToInsert">
-      </div>
-      <div class="col-1 ps-0">
-        <button class="btn btn-primary" @click="goToInsert()">ok</button>
+    <!-- 방명록 작성 -->
+    <div class="write-form">
+      <div class="write-header">방명록 작성</div>
+
+      <div class="write-body">
+        <textarea class="write-textarea" v-model="newContent" @keyup.ctrl.enter="goToInsert" placeholder="방명록을 작성해주세요"
+          maxlength="500" rows="2"></textarea>
+
+        <button class="submit-btn" @click="goToInsert" :disabled="!newContent.trim() || isSubmitting">
+          등록
+        </button>
       </div>
     </div>
 
-    <div class="d-flex justify-content-center align-items-center" style="margin-top: 1em">
-      <Pagination :pagination="pagination1" :requestFunc="(page, perPage) => requestGuestBookList(1, page, perPage)" />
+    <!-- 페이지네이션 -->
+    <div v-if="pagination1.totalCount > 0" class="pagination-wrapper">
+      <Pagination :pagination="pagination1" :requestFunc="(page, perPage) => requestGuestBookList(page, perPage)" />
+    </div>
+
+    <!-- 에러 메시지 -->
+    <div v-if="errorMessage" class="error-message">
+      {{ errorMessage }}
+      <button class="error-close" @click="errorMessage = ''">×</button>
     </div>
   </div>
 </template>
 
 <script setup>
-// Vue의 'Composition API'를 사용하기 위한 필수 라이브러리들을 가져옵니다.
-import { ref, onMounted } from 'vue' // 'ref'는 반응형 상태를, 'onMounted'는 컴포넌트 초기화 시 실행되는 훅입니다.
-import axios from 'axios' // HTTP 통신을 위한 라이브러리입니다.
-
-// 페이지네이션 컴포넌트와 관련 유틸리티 함수들을 가져옵니다.
+import { ref, onMounted, watch } from 'vue'
+import axios from 'axios'
 import Pagination from '@/components/Pagination.vue'
 import { usePagination } from '@/util/pagination'
+
 const { makePagination } = usePagination()
 
-// 컴포넌트의 상태를 관리하는 반응형 변수들을 선언합니다.
-const guestbooks = ref([])         // 화면에 표시될 방명록 목록 데이터입니다.
-const pagination1 = ref({})        // 페이지네이션 컴포넌트에 필요한 정보를 담을 객체입니다.
-const newContent = ref("")         // 사용자가 입력할 새 방명록 내용입니다.
-const perPage = 2                  // 🔥 한 페이지에 표시될 방명록 개수를 고정값으로 설정했습니다.
-const currentPage = ref(1)         // 현재 사용자가 보고 있는 페이지 번호입니다.
+// 반응형 상태
+const guestbooks = ref([])
+const newContent = ref("")
+const currentPage = ref(1)
+const perPage = ref(2)
 
-// 컴포넌트가 DOM에 마운트된 직후 호출되는 라이프사이클 훅입니다.
-// 페이지가 로드될 때 초기 방명록 데이터를 불러옵니다.
-onMounted(() => {
-  requestGuestBookList(1, 1, 2)
+const pagination1 = ref(makePagination({
+  page: 1,
+  perPage: 2,
+  totalCount: 0
+}))
+
+// 로딩 상태
+const isLoading = ref(false)
+const isSubmitting = ref(false)
+const isDeleting = ref(false)
+const errorMessage = ref("")
+
+// 현재 로그인한 사용자 정보
+const loginUserId = sessionStorage.getItem('loginId')
+const loginUserPk = sessionStorage.getItem('userId')
+
+// Props
+const props = defineProps({
+  miniHomeOwnerLoginId: {
+    type: String,
+    required: true
+  }
 })
 
+// 컴포넌트 마운트
+onMounted(() => {
+  console.log('GuestbookView props:', props.miniHomeOwnerLoginId)
+
+  if (!loginUserId) {
+    errorMessage.value = "로그인이 필요합니다."
+    return
+  }
+
+  if (!props.miniHomeOwnerLoginId) {
+    errorMessage.value = "미니홈피 정보를 찾을 수 없습니다."
+    return
+  }
+
+  requestGuestBookList(1, perPage.value)
+})
+
+// 💡 watch를 사용하여 miniHomeOwnerLoginId prop의 변경을 감시합니다.
+watch(
+  () => props.miniHomeOwnerLoginId,
+  (newId, oldId) => {
+    // ID가 실제로 변경되었을 때만 데이터를 다시 불러옵니다.
+    if (newId !== oldId) {
+      console.log(`방명록 ID 변경 감지: ${oldId} -> ${newId}`);
+      requestGuestBookList(newId, 1, perPage.value);
+    }
+  },
+  { immediate: true } // 💡 컴포넌트가 처음 마운트될 때 즉시 실행합니다.
+);
+
 /**
- * 방명록 목록을 서버에서 가져와 화면에 표시하는 비동기 함수입니다.
- * @param {number} guestBookMiniHomeId - 조회할 미니홈피의 고유 ID (현재는 하드코딩)
- * @param {number} page - 요청할 페이지 번호
- * @param {number} perPageFixed - 한 페이지에 표시할 아이템 수
+ * 방명록 목록 조회
  */
-async function requestGuestBookList(guestBookMiniHomeId, page, perPageFixed = perPage) {
+async function requestGuestBookList(miniHomeOwnerId, page = 1, itemsPerPage = perPage.value) {
+  if (isLoading.value) return
+
+  isLoading.value = true
+  errorMessage.value = ""
+
   try {
-    // Axios GET 요청을 통해 서버에서 전체 방명록 데이터를 가져옵니다.
     const response = await axios.get('http://localhost:8080/api/guestbook-list', {
-      params: { guestBookMiniHomeId },
+      params: {
+        miniHomeOwnerLoginId: props.miniHomeOwnerLoginId
+      },
+      timeout: 10000
     })
 
-    const allData = response.data     // 서버로부터 받은 전체 데이터 배열입니다.
-    const totalCount = allData.length // 전체 방명록 개수입니다.
+    const allData = Array.isArray(response.data) ? response.data : []
+    const totalCount = allData.length
 
-    // ⚡ 클라이언트 측에서 페이지네이션을 구현하기 위해 배열의 일부를 자릅니다.
-    const start = (page - 1) * perPageFixed
-    const end = start + perPageFixed
+    // 클라이언트 측 페이지네이션
+    const start = (page - 1) * itemsPerPage
+    const end = start + itemsPerPage
     guestbooks.value = allData.slice(start, end)
 
-    // ⚡ 페이지네이션 컴포넌트에 필요한 정보를 동적으로 생성하여 할당합니다.
     pagination1.value = makePagination({
       page,
-      perPage: perPageFixed,
-      totalCount
+      perPage: itemsPerPage,
+      total: totalCount
     })
 
     currentPage.value = page
-  } catch (err) {
-    // 요청 실패 시 에러를 콘솔에 출력합니다.
-    console.error(`에러(list) -> ${err}`)
+
+  } catch (error) {
+    console.error('방명록 조회 오류:', error)
+    if (error.code === 'ECONNABORTED') {
+      errorMessage.value = '요청 시간이 초과되었습니다.'
+    } else if (error.response?.status === 403) {
+      errorMessage.value = '접근 권한이 없습니다.'
+    } else {
+      errorMessage.value = '방명록을 불러오는데 실패했습니다.'
+    }
+    guestbooks.value = []
+  } finally {
+    isLoading.value = false
   }
 }
 
 /**
- * 특정 방명록을 삭제하는 비동기 함수입니다.
- * @param {number} guestBookId - 삭제할 방명록의 ID
- */
-async function goToDelete(guestBookId) {
-  try {
-    // Axios POST 요청으로 삭제 API를 호출합니다.
-    await axios.post('http://localhost:8080/api/guestbook-delete', { guestBookId })
-    // 삭제 성공 후, 현재 페이지의 방명록 리스트를 다시 불러와 화면을 업데이트합니다.
-    requestGuestBookList(1, currentPage.value, perPage)
-  } catch (err) {
-    // 삭제 실패 시 에러를 콘솔에 출력합니다.
-    console.error(`에러(delete) -> ${err}`)
-  }
-}
-
-/**
- * 새로운 방명록을 추가하는 비동기 함수입니다.
+ * 방명록 작성
  */
 async function goToInsert() {
-  // 입력 내용이 비어있으면 함수 실행을 중단합니다.
-  if (!newContent.value) return
+  if (!newContent.value.trim()) {
+    errorMessage.value = "방명록 내용을 입력해주세요."
+    return
+  }
 
-  // 서버에 전송할 데이터 페이로드(payload)를 정의합니다.
+  if (!loginUserPk) {
+    errorMessage.value = "로그인이 필요합니다."
+    return
+  }
+
+  isSubmitting.value = true
+  errorMessage.value = ""
+
   const payload = {
-    guestbookContent: newContent.value,
-    guestbookMinihomeId: 1, // 하드코딩된 미니홈피 ID
-    guestbookWriterId: 3    // 하드코딩된 작성자 ID
+    guestbookContent: newContent.value.trim(),
+    guestbookMinihomeId: 1,
+    guestbookWriterId: parseInt(loginUserPk)
   }
 
   try {
-    // Axios POST 요청으로 방명록 추가 API를 호출합니다.
     await axios.post('http://localhost:8080/api/guestbook-insert', payload)
-    // 추가 성공 후, 현재 페이지의 방명록 리스트를 다시 불러와 화면을 업데이트합니다.
-    requestGuestBookList(1, currentPage.value, perPage)
-    // 입력 필드를 초기화합니다.
     newContent.value = ""
-  } catch (err) {
-    // 추가 실패 시 에러를 콘솔에 출력합니다.
-    console.error(`에러(insert) -> ${err}`)
+    await requestGuestBookList(1, perPage.value)
+
+  } catch (error) {
+    console.error('방명록 작성 오류:', error)
+    errorMessage.value = '방명록 작성에 실패했습니다.'
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+/**
+ * 방명록 삭제 확인
+ */
+function confirmDelete(guestBookId) {
+  if (confirm('정말로 이 방명록을 삭제하시겠습니까?')) {
+    goToDelete(guestBookId)
+  }
+}
+
+/**
+ * 방명록 삭제
+ */
+async function goToDelete(guestBookId) {
+  if (isDeleting.value) return
+
+  isDeleting.value = true
+
+  try {
+    await axios.post('http://localhost:8080/api/guestbook-delete', {
+      guestBookId,
+      requesterUserId: loginUserPk
+    })
+    await requestGuestBookList(currentPage.value, perPage.value)
+  } catch (error) {
+    console.error('방명록 삭제 오류:', error)
+    errorMessage.value = '방명록 삭제에 실패했습니다.'
+  } finally {
+    isDeleting.value = false
+  }
+}
+
+/**
+ * 삭제 권한 체크
+ */
+function canDelete(guestbookData) {
+  return loginUserId === props.miniHomeOwnerLoginId ||
+    loginUserPk === guestbookData.guestBookWriterId?.toString()
+}
+
+/**
+ * 날짜 포맷팅
+ */
+function formatDate(dateString) {
+  if (!dateString) return ''
+
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('ko-KR', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch (error) {
+    return dateString
   }
 }
 </script>
 
 <style scoped>
-/* `scoped` 속성은 이 `<style>` 블록의 스타일이 현재 컴포넌트에만 적용되도록 합니다.
-  이는 스타일 충돌을 방지합니다.
-*/
-.bab {
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
+.guestbook-container {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-/* 방명록 컨테이너의 높이를 제한하고 스크롤을 활성화하는 스타일입니다. */
-.guestbook-container {
-  max-height: 80%;
-  /* 부모 요소의 높이를 채우도록 설정 */
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.guestbook-list {
+  flex: 1;
   overflow-y: auto;
-  /* 내용이 넘칠 때 세로 스크롤바가 생기도록 설정 */
+  margin-bottom: 10px;
+}
+
+.guestbook-item {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.guestbook-header {
+  background: #f1f3f4;
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.guestbook-number {
+  background: #e9ecef;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.author-name {
+  font-weight: bold;
+}
+
+.write-date {
+  color: #666;
+  margin-left: auto;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.delete-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.guestbook-content {
+  display: flex;
+  padding: 12px;
+  gap: 10px;
+}
+
+.profile-section {
+  flex-shrink: 0;
+}
+
+.profile-placeholder {
+  width: 40px;
+  height: 40px;
+  background: #dee2e6;
+  border-radius: 50%;
+}
+
+.message-section {
+  flex: 1;
+}
+
+.message-text {
+  margin: 0;
+  line-height: 1.4;
+  color: #333;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.write-form {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.write-header {
+  background: #f1f3f4;
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.write-body {
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.write-textarea {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 8px;
+  font-size: 12px;
+  font-family: inherit;
+  resize: none;
+  height: 50px;
+}
+
+.write-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.submit-btn {
+  background: #007bff;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.submit-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: #721c24;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+}
+
+.error-close:hover {
+  color: #000;
 }
 </style>

@@ -9,7 +9,7 @@ import java.util.List;
 public interface GuestBookMapper {
 
     // 특정 미니홈피의 모든 방명록 목록을 조회
-    List<GuestBookDto> getGuestbookList(@Param("guestBookMiniHomeId") int guestBookMiniHomeId);
+    List<GuestBookDto> getGuestbookList(@Param("miniHomeOwnerLoginId") String miniHomeOwnerLoginId);
 
     // 방명록 삭제
     int deleteGuestbook(@Param("guestBookId") Long guestBookId);

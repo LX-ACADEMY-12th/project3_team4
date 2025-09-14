@@ -28,7 +28,7 @@ public class MiniHomeRestController {
 	
 	// HTTP GET 요청을 처리하는 메서드
     @GetMapping("/showMiniHome")
-    public ResponseEntity<MiniHomeDto> getMinihome(@RequestParam("userId") String userId) {
+    public ResponseEntity<MiniHomeDto> getMinihome(@RequestParam("miniHomeOwnerLoginId") String userId) {
     	// userId 파라미터가 잘 받아와지는지 확인하는 로그 출력
         System.out.println("요청받은 userId: " + userId); 
         

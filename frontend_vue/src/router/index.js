@@ -8,6 +8,7 @@ import SignupView from '../views/SignupView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // 로그인 페이지 경로
     {
       path: '/',
       name: 'login',
@@ -18,8 +19,9 @@ const router = createRouter({
       name: 'signup',
       component: SignupView,
     },
+    // 미니홈피를 방문하는 경로 (동적 파라미터)
     {
-      path: '/minihome',
+      path: '/minihome/:loginId',
       name: 'minihome',
       component: MiniHomeView,
     },
