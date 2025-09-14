@@ -170,6 +170,19 @@
                 <span class="small">{{ userInfo.nickname || '나' }}</span>
               </div>
             </div>
+
+            <!-- 친구 목록(파도타기) -->
+            <div>
+              <select v-model="selectedFriend" class="form-select form-select-sm" @change="goToFriendHome">
+                <option disabled value="">[파도타기]</option>
+                <option
+                  v-for="user in users"
+                  :key="user.userId"
+                  :value="user.loginId">
+                  {{ user.nickname }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <!-- 오른쪽 영역 -->
@@ -246,8 +259,10 @@
 
 
 <script>
-import axios from 'axios'
+// Vue의 'Composition API'를 사용하기 위한 필수 라이브러리들을 가져옵니다.
+import axios from 'axios' // HTTP 통신을 위한 라이브러리입니다.
 import GuestbookView from './GuestbookView.vue'
+
 
 export default {
   components: { GuestbookView },
@@ -256,6 +271,7 @@ export default {
 
   data() {
     return {
+      users: [], //사용자를 담을 배열
       isEditing: false,
       isSaving: false,
       previewImage: null,
@@ -291,21 +307,60 @@ export default {
     }
   },
 
+  // route 객체의 변경을 감시하는 watch 옵션
+  watch: {
+    // $route.params.loginId의 변화를 감지합니다.
+    '$route.params.loginId'(newLoginId) {
+      // 새로운 loginId로 미니홈피 데이터를 다시 불러오는 메서드를 호출합니다.
+      // 이 로직은 `mounted()` 훅에 있는 로직과 동일해야 합니다.
+      this.fetchMinihome(newLoginId);
+      this.getUsers(newLoginId);
+    }
+  },
+
   // 라이플사이클 훅 - vue 컴포넌트가 마운트 된 후 호출됨.
   mounted() {
     // 세션 스토리지에서 로그인 아이디를 가져옵니다.
-    const storedUserId = sessionStorage.getItem('loginId');
+    //const storedUserId = sessionStorage.getItem('loginId');
+    let targetLoginId;
+
+    // 친구 홈피 방문(URL 파라미터가 있음)
+    if(this.$route.params.loginId) {
+      targetLoginId = this.$route.params.loginId;
+    }
+
+    // 내 홈피(URL 파라미터 없음 -> 세션에 저장된 loginId 사용)
+    else {
+      targetLoginId = sessionStorage.getItem('loginId');
+    }
 
     // 아이디가 존재할 경우, this.loginUserId에 할당하고 미니홈피 데이터를 불러옵니다.
-    if (storedUserId) {
-      this.loginUserId = storedUserId;
-      this.fetchMinihome(this.loginUserId);
-    } else {
+    if(targetLoginId) {
+      this.loginUserId = targetLoginId; // 홈피주인 id저장
+      this.fetchMinihome(targetLoginId); // 홈피 데이터 불러오기
+      this.getUsers(targetLoginId) // 친구목록 불러오기
+    }
+    else {
       // 아이디가 없으면 로그인 페이지로 리디렉션하거나,
       // 에러 메시지를 표시하는 등의 처리를 할 수 있습니다.
       console.error('로그인된 사용자가 없습니다.');
       // 예시: this.$router.push('/login');
     }
+ 
+    //const loginId = this.$route.params.loginId || sessionStorage.getItem('loginId')
+    // this.getUsers(loginId)
+
+    // // 아이디가 존재할 경우, this.loginUserId에 할당하고 미니홈피 데이터를 불러옵니다.
+    // if (loginId) {
+    //   this.loginUserId = loginId;
+    //   this.fetchMinihome(loginId);
+    //   this.getUsers(loginId)
+    // } else {
+    //   // 아이디가 없으면 로그인 페이지로 리디렉션하거나,
+    //   // 에러 메시지를 표시하는 등의 처리를 할 수 있습니다.
+    //   console.error('로그인된 사용자가 없습니다.');
+    //   // 예시: this.$router.push('/login');
+    // }
   },
 
   methods: {
@@ -493,7 +548,38 @@ export default {
       this.isEditing = false
       this.previewImage = null
       this.profileImageFile = null
+    },
+
+
+    /**
+     * 친구(사용자 전체)를 서버에서 가져와 화면에 표시하는 작업
+     * @param loginId
+     */
+    async getUsers(loginId) {
+      try{
+        const response = await axios.get('http://localhost:8080/api/show-users', {
+        params: { loginId },
+      });
+      console.log("요청 loginId:", loginId);
+      console.log("서버 응답:", response.data);
+
+      this.users = response.data
+      } catch(err) {
+        // 요청 실패 시 에러를 콘솔에 출력합니다.
+        console.error(`에러(list) -> ${err}`)
+      }
+    },
+
+    goToFriendHome() {
+      if (this.selectedFriend) {
+      this.$router.push({ 
+          name: 'friend-minihome',
+          params: { loginId: this.selectedFriend } 
+        })
+      }
     }
+
+    
   }
 }
 </script>
