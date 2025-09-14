@@ -65,6 +65,7 @@
               <option value="😴 피곤">😴 피곤</option>
               <option value="😍 설렘">😍 설렘</option>
               <option value="🤔 고민중">🤔 고민중</option>
+              <option value="😪 휴식중">😪 휴식중</option>
             </select>
           </div>
           <div v-else class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</div>
@@ -124,8 +125,6 @@
               <option value="#f8f9fa">기본 (연회색)</option>
               <option value="#cce5ff">파랑</option>
               <option value="#fddde6">분홍</option>
-              <option value="#d4edda">연두</option>
-              <option value="#fff3cd">노랑</option>
               <option value="#212529">검정</option>
             </select>
           </div>
@@ -151,18 +150,6 @@
           <div v-else>
             테마: {{ getThemeName(userInfo.theme) }}
           </div>
-        </div>
-
-        <!-- YouTube 비디오 ID -->
-        <div class="text-center mb-2 small" v-if="isEditing">
-          <input
-            type="text"
-            v-model="userInfo.youtubeVideoId"
-            class="form-control form-control-sm"
-            placeholder="YouTube 비디오 ID"
-            maxlength="20"
-          />
-          <small class="text-muted">예: dQw4w9WgXcQ</small>
         </div>
 
         <!-- 상태 메시지 -->
