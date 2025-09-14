@@ -45,12 +45,15 @@
     </properties>
 
     <dependencies>
-        
-        <!-- Spring Security: 인증/권한 관리 -->
+    
+        <!--
+         Spring Security: 인증/권한 관리 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+			
+		-->
         
         <!-- Spring Web: 웹 애플리케이션 기본 -->
         <dependency>

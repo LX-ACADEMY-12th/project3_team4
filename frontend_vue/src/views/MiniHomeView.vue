@@ -334,86 +334,30 @@ export default {
       }
     },
 
+    
+
     // 미니홈피 정보 저장
     async saveMinihome() {
       this.isSaving = true
 
       try {
-        // FormData로 파일과 데이터를 함께 전송
-        const formData = new FormData()
+        const response = await axios.post('http://localhost:8080?minihime-updage')
 
-        // 기본 사용자 정보 추가
-        formData.append('userId', this.userInfo.userId)
-        formData.append('todayMood', this.userInfo.todayMood || '')
-        formData.append('statusMessage', this.userInfo.statusMessage || '')
-        formData.append('birthDate', this.userInfo.birthDate || '')
-        formData.append('gender', this.userInfo.gender || '')
-        formData.append('region', this.userInfo.region || '')
-        formData.append('hobby', this.userInfo.hobby || '')
-        formData.append('youtubeVideoId', this.userInfo.youtubeVideoId || '')
-        formData.append('backgroundColor', this.userInfo.backgroundColor)
-        formData.append('appliedThemeId', this.userInfo.theme || '')
+        if (responss.data > 0) { //업데이트된 행 수가 1 이상이면 성공
 
-        // 프로필 이미지 파일이 있으면 추가
-        if (this.profileImageFile) {
-          formData.append('profileImageFile', this.profileImageFile)
         }
-
-        // API 호출
-        const response = await axios.post('http://localhost:8080/api/updateMiniHome', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
-
-        if (response.data.success) {
-          this.showMessage('미니홈피가 성공적으로 저장되었습니다!', 'success')
-          this.isEditing = false
-
-          // 서버에서 반환된 새로운 프로필 이미지 URL이 있으면 업데이트
-          if (response.data.profileImageUrl) {
-            this.userInfo.profileImage = response.data.profileImageUrl
-          }
-
-          // 파일 관련 임시 데이터 초기화
-          this.profileImageFile = null
-          this.previewImage = null
-
-        } else {
-          throw new Error(response.data.message || '저장에 실패했습니다.')
-        }
-
-      } catch (error) {
-        console.error('미니홈피 저장 실패:', error)
-        this.showMessage(
-          error.response?.data?.message || '미니홈피 저장에 실패했습니다.',
-          'error'
-        )
-        // 에러 발생 시 원본 데이터로 복원
-        this.userInfo = { ...this.originalUserInfo }
-      } finally {
-        this.isSaving = false
       }
     },
 
-    // 프로필 이미지 파일 변경
+    // 프로필 이미지 파일 변경 간단
     onFileChange(e) {
       const file = e.target.files[0]
-      if (file) {
-        // 파일 크기 체크 (예: 5MB 제한)
-        if (file.size > 5 * 1024 * 1024) {
-          this.showMessage('파일 크기는 5MB 이하여야 합니다.', 'error')
-          return
+      if(file) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          this.userInfo.profileImage = e. target.result
         }
-
-        // 파일 형식 체크
-        if (!file.type.startsWith('image/')) {
-          this.showMessage('이미지 파일만 업로드 가능합니다.', 'error')
-          return
-        }
-
-        this.profileImageFile = file
-        this.previewImage = URL.createObjectURL(file)
+        reader.readAsDataURL(file)
       }
     },
 

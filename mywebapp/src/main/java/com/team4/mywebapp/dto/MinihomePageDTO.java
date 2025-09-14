@@ -10,6 +10,7 @@ public class MinihomePageDTO {
     private int appliedThemeId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String youtubeVideoId;
 
     // user
     private int userId;
@@ -80,4 +81,7 @@ public class MinihomePageDTO {
     public void setTodayCount(Integer todayCount) { this.todayCount = todayCount; }
     public Integer getTotalCount() { return totalCount; }
     public void setTotalCount(Integer totalCount) { this.totalCount = totalCount; }
+    
+    public String getYoutubeVideoId() { return youtubeVideoId; }
+    public void setYoutubeVideoId(String youtubeVideoId) { this.youtubeVideoId = youtubeVideoId; }
 }

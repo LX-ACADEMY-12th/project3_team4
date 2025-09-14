@@ -14,12 +14,36 @@ public class MinihomePageService {
     private MinihomePageMapper minihomePageMapper;
 
     public MinihomePageDTO getMinihomePage(int minihomeOwnerId) {
-        MinihomePageDTO dto = minihomePageMapper.getMinihomePage(minihomeOwnerId);
-        if (dto != null) {
-            int today = dto.getTodayCount() == null ? 0 : dto.getTodayCount();
-            int total = dto.getTotalCount() == null ? 0 : dto.getTotalCount();
-            dto.setVisitCount(new VisitCount(today, total));
+        try {
+            System.out.println("DB에서 사용자 정보 조회 - userId: " + minihomeOwnerId);
+            
+            MinihomePageDTO dto = minihomePageMapper.getMinihomePage(minihomeOwnerId);
+            
+            if (dto != null) {
+                // 방문자 수 설정
+                int today = dto.getTodayCount() == null ? 0 : dto.getTodayCount();
+                int total = dto.getTotalCount() == null ? 0 : dto.getTotalCount();
+                dto.setVisitCount(new VisitCount(today, total));
+                
+                // DB에 없는 필드들 기본값 설정
+                if (dto.getTodayMood() == null) {
+                    dto.setTodayMood(""); // 빈 값으로 설정
+                }
+                if (dto.getYoutubeVideoId() == null) {
+                    dto.setYoutubeVideoId(""); // 빈 값으로 설정
+                }
+                
+                System.out.println("DB 조회 성공 - " + dto.getNickname());
+            } else {
+                System.out.println("해당 사용자의 미니홈피를 찾을 수 없습니다.");
+            }
+            
+            return dto;
+            
+        } catch (Exception e) {
+            System.err.println("DB 조회 중 에러 발생: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
-        return dto;
     }
 }
