@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.team4.mywebapp.mapper.MiniHomeMapper">
+
+<!-- 
+<select id="getMiniHomeByOwner" parameterType="int" resultType="com.team4.mywebapp.dto.MiniHomeDto">	
+	SELECT 
+		minihome_id as minihomeId
+		, title
+		, created_at as createdAt
+		, updated_at as updatedAt
+		, background_color_id as backgroundColorId
+		, applied_theme_id as appliedThemeId
+		, theme_theme_id as themeThemeId
+	FROM minihome
+	WHERE minihome_owner_id = #{minihomeOwnerId}
+</select>
+ -->
+
+<!-- id로 미니홈 조회 -->
+<select id="getMiniHomeById" parameterType="int" resultType="MiniHomeDto">	
+	SELECT 
+		minihome_owner_id as minihomeOwnerId 
+		, title
+		, created_at as createdAt
+		, updated_at as updatedAt
+		, background_color_id as backgroundColorId
+		, applied_theme_id as appliedThemeId
+		, theme_theme_id as themeThemeId
+	FROM minihome
+	WHERE minihome_id = #{minihomeId}
+</select>
+
+<!-- 미니홈 전체 수정 -->
+<update id="updateMiniHome" parameterType="MiniHomeDto">
+	UPDATE minihome
+	SET 
+		title = #{title}
+		, background_color_id = #{backgroundColorId}
+		, applied_theme_id = #{appliedThemeId}
+		, updated_at = NOW()
+	WHERE minihome_id = #{minihomeId}	
+</update>
+
+
+
+</mapper>

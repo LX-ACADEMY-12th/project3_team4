@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.team4.mywebapp.dto.LoginDto;
 import com.team4.mywebapp.service.AuthService;
+import com.team4.mywebapp.service.UserService;
+
 import jakarta.servlet.http.HttpSession;
 
 @RestController
@@ -42,6 +44,7 @@ public class AuthController {
 			System.out.println("입력받은 아이디: " + loginDto.getLoginId());
 			System.out.println("입력받은 비밀번호: " + loginDto.getLoginPw());
 			
+			
 		
 	        // 비즈니스 로직은 서비스 계층에 위임 AuthService를 사용해서 로그인 인증
 	        boolean isAuthenticated = authService.authenticateUser(loginDto);
@@ -50,6 +53,7 @@ public class AuthController {
 	            // 인증 성공 시, 성공 응답 반환
 	            // (실제로는 JWT 토큰 등을 생성하여 반환)
 	        	session.setAttribute("loginId", loginDto.getLoginId());
+	        	
 	            return ResponseEntity.ok("로그인 성공");
 	        } else {
 	            // 인증 실패 시, 401 Unauthorized 응답 반환
