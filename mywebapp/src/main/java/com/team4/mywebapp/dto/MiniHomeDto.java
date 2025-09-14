@@ -12,7 +12,7 @@ public class MiniHomeDto {
 	private int appliedThemeId;
 	private int minihomeOwnerId;
 	private int themeThemeId;
-	
+	private String profileImage;
 	
 	public int getMinihomeId() {
 		return minihomeId;
@@ -62,6 +62,13 @@ public class MiniHomeDto {
 	public void setThemeThemeId(int themeThemeId) {
 		this.themeThemeId = themeThemeId;
 	}
+	public String getProfileImage() {
+		return profileImage;
+	}
+	public void setProfileImage(String profileImage) {
+		this.profileImage = profileImage;
+	}
+	
 	
 	
 	
