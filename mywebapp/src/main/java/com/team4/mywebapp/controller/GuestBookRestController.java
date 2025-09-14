@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:5173") // Vue 개발 서버 주소
 public class GuestBookRestController {
 
     @Autowired
@@ -22,10 +23,23 @@ public class GuestBookRestController {
      * @return 방명록 목록 및 200 OK 응답
      */
     @GetMapping("/guestbook-list")
-    public ResponseEntity<List<GuestBookDto>> getGuestbookList(@RequestParam int guestBookMiniHomeId) {
-        List<GuestBookDto> guestbookList = guestbookService.getGuestbookList(guestBookMiniHomeId);
-        return ResponseEntity.ok(guestbookList);
+    public ResponseEntity<?> getGuestbookList(@RequestParam("miniHomeOwnerLoginId") String miniHomeOwnerLoginId) {
+    	try {
+            List<GuestBookDto> guestbooks = guestbookService.getGuestbookList(miniHomeOwnerLoginId);
+            
+            // 디버깅용 로그
+            System.out.println("방명록 개수: " + guestbooks.size());
+            for (GuestBookDto dto : guestbooks) {
+                System.out.println("profilePhotoPath: " + dto.getProfilePhotoPath());
+            }
+            
+            return ResponseEntity.ok(guestbooks);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("방명록을 불러오는데 실패했습니다.");
+        }
     }
+    
 
     /**
      * 방명록을 삭제하는 API

@@ -1,6 +1,7 @@
 package com.team4.mywebapp.service;
 
 import com.team4.mywebapp.dto.LoginDto;
+import com.team4.mywebapp.dto.UserDto;
 import com.team4.mywebapp.mapper.LoginMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,9 @@ public class LoginService {
      * @param loginDto 사용자의 아이디와 비밀번호를 담은 객체
      * @return 인증 성공 시 LoginDto 객체, 실패 시 null
      */
-    public LoginDto login(LoginDto loginDto) {
+    public UserDto login(LoginDto loginDto) {
         // 매퍼를 호출하여 데이터베이스에서 일치하는 사용자를 찾습니다.
-        LoginDto authenticatedUser = loginMapper.authenticateUser(loginDto.getLoginId(), loginDto.getLoginPw());
+    	UserDto authenticatedUser = loginMapper.authenticateUser(loginDto.getLoginId(), loginDto.getLoginPw());
 
         // 사용자 정보가 존재하면 인증 성공, 없으면 null 반환
         return authenticatedUser;

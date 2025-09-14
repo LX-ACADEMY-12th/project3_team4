@@ -8,261 +8,249 @@
 
     <!-- 상단 헤더 -->
     <div class="d-flex p-2 mb-3 text-black justify-content-between align-items-center">
-      <div class="d-flex flex-column p-3" :style="{
-        'font-family': 'DotGothic16, sans-serif',
-        height: '700px',
-        width: '900px',
-        'background-color': userInfo.backgroundColor,
-      }">
-
-        <!-- 상단 헤더 -->
-        <div class="d-flex p-2 mb-3 text-black justify-content-between align-items-center">
-          <div class="d-flex flex-column ms-4 me-4 align-items-center border border-dark">
-            <span class="m-3">{{ userInfo.nickname || '사용자' }}님의 미니홈피</span>
-            <div class="border border-dark">
-              <span class="badge bg-danger me-1">TODAY {{ visitCount?.todayCount || '13' }}</span>
-              <span class="badge bg-secondary">TOTAL {{ visitCount?.totalCount || '13' }}</span>
-            </div>
-          </div>
-
-          <div class="border border-dark col-8 mx-auto">
-            <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD" />
-            <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD" />
-          </div>
-
-          <div>
-            <button class="btn btn-sm btn-outline-info" @click="toggleEdit" :disabled="isSaving">
-              {{ isSaving ? '저장중...' : (isEditing ? '저장' : '수정') }}
-            </button>
-          </div>
+      <div class="d-flex flex-column ms-4 me-4 align-items-center border border-dark">
+        <span class="m-3">{{ userInfo.nickname || '사용자' }}님의 미니홈피</span>
+        <div class="border border-dark">
+          <span class="badge bg-danger me-1">TODAY {{ visitCount?.todayCount || '13' }}</span>
+          <span class="badge bg-secondary">TOTAL {{ visitCount?.totalCount || '13' }}</span>
         </div>
+      </div>
 
-        <!-- 저장 성공/실패 메시지 -->
-        <div v-if="saveMessage" class="alert alert-dismissible fade show" :class="saveMessageClass" role="alert">
-          {{ saveMessage }}
-          <button type="button" class="btn-close" @click="saveMessage = ''"></button>
-        </div>
-
-        <!-- 메인 컨텐츠 영역 -->
-        <div class="d-flex flex-fill flex-row">
-
-          <!-- 왼쪽 영역 -->
-          <div class="d-flex flex-column bg-white p-2 me-2 col-3 sidebar-left">
-            <!-- 프로필 영역 -->
-            <div class="d-flex flex-column align-items-center mb-2 border border-dark profile-box">
-              <div class="w-100 h-100">
-                <div v-if="isEditing">
-                  <input type="file" @change="onFileChange" class="form-control form-control-sm mb-1"
-                    accept="image/*" />
-                  <img v-if="previewImage" :src="previewImage" class="profile-img" />
-                  <img v-else-if="userInfo.profileImage" :src="userInfo.profileImage" class="profile-img" />
-                </div>
-                <img v-else
-                  :src="userInfo.profileImage || 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Profile'"
-                  class="profile-img" />
-              </div>
-            </div>
-
-            <!-- 기분 영역 -->
-            <div class="text-center mb-1 small">
-              <div v-if="isEditing">
-                <select v-model="userInfo.todayMood" class="form-select form-select-sm">
-                  <option value="">[기분 선택]</option>
-                  <option value="😊 행복">😊 행복</option>
-                  <option value="😢 슬픔">😢 슬픔</option>
-                  <option value="😡 화남">😡 화남</option>
-                  <option value="😴 피곤">😴 피곤</option>
-                  <option value="😍 설렘">😍 설렘</option>
-                  <option value="🤔 고민중">🤔 고민중</option>
-                  <option value="😪 휴식중">😪 휴식중</option>
-                </select>
-              </div>
-              <div v-else class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</div>
-            </div>
-
-            <!-- 생일+성별 영역 -->
-            <div class="text-center mb-1 small">
-              <div v-if="isEditing" class="d-flex gap-1">
-                <input type="date" v-model="userInfo.birthDate" class="form-control form-control-sm" />
-                <select v-model="userInfo.gender" class="form-select form-select-sm" style="max-width: 70px;">
-                  <option value="">성별</option>
-                  <option value="남자">남자</option>
-                  <option value="여자">여자</option>
-                </select>
-              </div>
-              <div v-else>
-                생일: {{ userInfo.birthDate || '등록 안 됨' }}
-                <span v-if="userInfo.gender"> / {{ userInfo.gender }}</span>
-              </div>
-            </div>
-
-            <!-- 지역 영역 -->
-            <div class="text-center mb-1 small">
-              <div v-if="isEditing">
-                <input type="text" v-model="userInfo.region" class="form-control form-control-sm" placeholder="지역 입력"
-                  maxlength="50" />
-              </div>
-              <div v-else>지역: {{ userInfo.region || '등록 안 됨' }}</div>
-            </div>
-
-            <!-- 취미 영역 -->
-            <div class="text-center mb-2 small">
-              <div v-if="isEditing">
-                <select v-model="userInfo.hobby" class="form-select form-select-sm">
-                  <option value="">[취미 선택]</option>
-                  <option value="독서">독서</option>
-                  <option value="운동">운동</option>
-                  <option value="음악">음악</option>
-                  <option value="여행">여행</option>
-                  <option value="게임">게임</option>
-                  <option value="요리">요리</option>
-                  <option value="영화감상">영화감상</option>
-                </select>
-              </div>
-              <div v-else>취미: {{ userInfo.hobby || '등록 안 됨' }}</div>
-            </div>
-
-            <!-- 🎨 배경색 선택 -->
-            <div class="text-center mb-2 small">
-              <div v-if="isEditing">
-                <select v-model="userInfo.backgroundColor" class="form-select form-select-sm">
-                  <option value="#f8f9fa">기본 (연회색)</option>
-                  <option value="#cce5ff">파랑</option>
-                  <option value="#fddde6">분홍</option>
-                  <option value="#212529">검정</option>
-                </select>
-              </div>
-              <div v-else>
-                배경색:
-                <span class="d-inline-block"
-                  :style="{ backgroundColor: userInfo.backgroundColor, width: '40px', height: '15px', border: '1px solid #000' }"></span>
-              </div>
-            </div>
-
-            <!-- 테마 선택 -->
-            <div class="text-center mb-2 small">
-              <div v-if="isEditing">
-                <select v-model="userInfo.theme" class="form-select form-select-sm">
-                  <option value="1">심플(기본)</option>
-                  <option value="2">귀여운</option>
-                  <option value="3">세련된</option>
-                  <option value="4">빈티지</option>
-                </select>
-              </div>
-              <div v-else>
-                테마: {{ getThemeName(userInfo.theme) }}
-              </div>
-            </div>
-
-            <!-- 상태 메시지 -->
-            <div class="d-flex flex-column align-items-center mb-2 border border-dark text-center status-box">
-              <p v-if="!isEditing" class="small w-100 m-0 d-flex align-items-center justify-content-center h-100">
-                {{ userInfo.statusMessage || '사용자 작성 멘트' }}
-              </p>
-              <textarea v-else v-model="userInfo.statusMessage" class="form-control form-control-sm h-100"
-                placeholder="상태 메시지를 입력하세요" maxlength="200"></textarea>
-            </div>
-
-            <!-- 홈주인 -->
-            <div class="border border-dark">
-              <div class="d-flex align-items-center">
-                <span class="small me-1">홈주인</span>
-                <span class="small">{{ userInfo.nickname || '나' }}</span>
-              </div>
-            </div>
-
-            <!-- 친구 목록(파도타기) -->
-            <div>
-              <select v-model="selectedFriend" class="form-select form-select-sm" @change="goToFriendHome">
-                <option disabled value="">[파도타기]</option>
-                <option
-                  v-for="user in users"
-                  :key="user.userId"
-                  :value="user.loginId">
-                  {{ user.nickname }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- 오른쪽 영역 -->
-          <div class="d-flex flex-grow-1 flex-column col-9 border border-black">
-            <!-- 상단 -->
-            <div class="d-flex border border-dark h-25">
-              <div class="d-flex col-8 justify-content-center align-items-center">
-                <span class="w-100 text-center">{{ userInfo.emptySpaceText || '빈공간' }}</span>
-              </div>
-
-              <div class="d-flex flex-grow-1 p-2" v-if="userInfo.youtubeVideoId">
-                <iframe :src="`https://www.youtube.com/embed/${userInfo.youtubeVideoId}`" frameborder="0"
-                  style="width: 100%; height: 100%"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
-              </div>
-              <div class="d-flex flex-grow-1 p-2 justify-content-center align-items-center bg-light" v-else>
-                <span class="text-muted">동영상 없음</span>
-              </div>
-            </div>
-
-            <!-- 메인 -->
-            <div class="d-flex flex-grow-1 p-1 justify-content-center align-items-center border border-dark">
-              <div class="d-flex col-11 justify-content-center align-items-center h-100 border border-dark">
-                <div v-if="activeTab === 'home'" class="w-100 h-100 d-flex justify-content-center align-items-center">
-                  <img
-                    :src="userInfo.miniroomImage || 'https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9938F0375BBEF5CC21'"
-                    alt="미니룸" class="img-fluid" />
-                </div>
-
-                <div v-else-if="activeTab === 'guestbook'" class="w-100 h-100 p-3 overflow-auto">
-                  <GuestbookView />
-                </div>
-
-                <div v-else-if="activeTab === 'photos'" class="w-100 h-100 p-3 overflow-auto">
-                  <h6>사진첩</h6>
-                  <div class="row">
-                    <div v-for="photo in photosList" :key="photo.id" class="col-4 mb-2">
-                      <img :src="photo.url" :alt="photo.title" class="img-fluid border" @click="viewPhoto(photo)" />
-                      <small class="d-block text-center">{{ photo.title }}</small>
-                    </div>
-                    <div v-if="photosList.length === 0" class="text-center text-muted w-100">사진이 없습니다</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 탭 -->
-              <div class="d-flex flex-column h-100 flex-grow-1 justify-content-start">
-                <div class="d-flex flex-column flex-grow-1 justify-content-start">
-                  <ul class="nav nav-tabs flex-column">
-                    <li class="nav-item border border-dark">
-                      <a class="nav-link" :class="{ active: activeTab === 'home' }" href="#"
-                        @click.prevent="activeTab = 'home'">홈</a>
-                    </li>
-                    <li class="nav-item border border-dark">
-                      <a class="nav-link" :class="{ active: activeTab === 'guestbook' }" href="#"
-                        @click.prevent="changeTab('guestbook')">방명록</a>
-                    </li>
-                    <li class="nav-item border border-dark">
-                      <a class="nav-link" :class="{ active: activeTab === 'photos' }" href="#"
-                        @click.prevent="changeTab('photos')">사진첩</a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div class="border border-dark col-8 mx-auto">
+        <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD" />
+        <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD" />
+      </div>
+      <!-- 로그인한 사용자가 현재 보고있는 미니홈피 소유자일 경우 -->
+      <div v-if="isMyMinihome">
+        <!-- :disabled 버튼 비활성화 상태를 isSaving 데이터 속성과 연결 -->
+        <button class="btn btn-sm btn-outline-info" @click="toggleEdit" :disabled="isSaving">
+          <!-- 사용자가 수정 모드 일때는 '저장' 버튼으로 바뀜, 데이터 저장 중일 때는 '저장중...'으로 바뀜 -->
+          {{ isSaving ? '저장중...' : (isEditing ? '저장' : '수정') }}
+        </button>
       </div>
     </div>
+
+    <!-- 저장 성공/실패 메시지 -->
+    <div v-if="saveMessage" class="alert alert-dismissible fade show" :class="saveMessageClass" role="alert">
+      {{ saveMessage }}
+      <button type="button" class="btn-close" @click="saveMessage = ''"></button>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <div class="d-flex flex-fill flex-row">
+
+      <!-- 왼쪽 영역 -->
+      <div class="d-flex flex-column bg-white p-2 me-2 col-3 sidebar-left">
+        <!-- 프로필 영역 -->
+        <div class="d-flex flex-column align-items-center mb-2 border border-dark profile-box">
+          <div class="w-100 h-100">
+            <div v-if="isEditing">
+              <input type="file" @change="onFileChange" class="form-control form-control-sm mb-1" accept="image/*" />
+              <img v-if="previewImage" :src="previewImage" class="profile-img" />
+              <img v-else-if="userInfo.profileImage" :src="userInfo.profileImage" class="profile-img" />
+            </div>
+            <img v-else :src="userInfo.profileImage || 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Profile'"
+              class="profile-img" />
+          </div>
+        </div>
+
+        <!-- 기분 영역 -->
+        <div class="text-center mb-1 small">
+          <div v-if="isEditing">
+            <select v-model="userInfo.todayMood" class="form-select form-select-sm">
+              <option value="">[기분 선택]</option>
+              <option value="😊 행복">😊 행복</option>
+              <option value="😢 슬픔">😢 슬픔</option>
+              <option value="😡 화남">😡 화남</option>
+              <option value="😴 피곤">😴 피곤</option>
+              <option value="😍 설렘">😍 설렘</option>
+              <option value="🤔 고민중">🤔 고민중</option>
+              <option value="😪 휴식중">😪 휴식중</option>
+            </select>
+          </div>
+          <div v-else class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</div>
+        </div>
+
+        <!-- 생일+성별 영역 -->
+        <div class="text-center mb-1 small">
+          <div v-if="isEditing" class="d-flex gap-1">
+            <input type="date" v-model="userInfo.birthDate" class="form-control form-control-sm" />
+            <select v-model="userInfo.gender" class="form-select form-select-sm" style="max-width: 70px;">
+              <option value="">성별</option>
+              <option value="남자">남자</option>
+              <option value="여자">여자</option>
+            </select>
+          </div>
+          <div v-else>
+            생일: {{ userInfo.birthDate || '등록 안 됨' }}
+            <span v-if="userInfo.gender"> / {{ userInfo.gender }}</span>
+          </div>
+        </div>
+
+        <!-- 지역 영역 -->
+        <div class="text-center mb-1 small">
+          <div v-if="isEditing">
+            <input type="text" v-model="userInfo.region" class="form-control form-control-sm" placeholder="지역 입력"
+              maxlength="50" />
+          </div>
+          <div v-else>지역: {{ userInfo.region || '등록 안 됨' }}</div>
+        </div>
+
+        <!-- 취미 영역 -->
+        <div class="text-center mb-2 small">
+          <div v-if="isEditing">
+            <select v-model="userInfo.hobby" class="form-select form-select-sm">
+              <option value="">[취미 선택]</option>
+              <option value="독서">독서</option>
+              <option value="운동">운동</option>
+              <option value="음악">음악</option>
+              <option value="여행">여행</option>
+              <option value="게임">게임</option>
+              <option value="요리">요리</option>
+              <option value="영화감상">영화감상</option>
+            </select>
+          </div>
+          <div v-else>취미: {{ userInfo.hobby || '등록 안 됨' }}</div>
+        </div>
+
+        <!-- 🎨 배경색 선택 -->
+        <div class="text-center mb-2 small">
+          <div v-if="isEditing">
+            <select v-model="userInfo.backgroundColor" class="form-select form-select-sm">
+              <option value="#f8f9fa">기본 (연회색)</option>
+              <option value="#cce5ff">파랑</option>
+              <option value="#fddde6">분홍</option>
+              <option value="#212529">검정</option>
+            </select>
+          </div>
+          <div v-else>
+            배경색:
+            <span class="d-inline-block"
+              :style="{ backgroundColor: userInfo.backgroundColor, width: '40px', height: '15px', border: '1px solid #000' }"></span>
+          </div>
+        </div>
+
+        <!-- 테마 선택 -->
+        <div class="text-center mb-2 small">
+          <div v-if="isEditing">
+            <select v-model="userInfo.theme" class="form-select form-select-sm">
+              <option value="1">심플(기본)</option>
+              <option value="2">귀여운</option>
+              <option value="3">세련된</option>
+              <option value="4">빈티지</option>
+            </select>
+          </div>
+          <div v-else>
+            테마: {{ getThemeName(userInfo.theme) }}
+          </div>
+        </div>
+
+        <!-- 상태 메시지 -->
+        <div class="d-flex flex-column align-items-center mb-2 border border-dark text-center status-box">
+          <p v-if="!isEditing" class="small w-100 m-0 d-flex align-items-center justify-content-center h-100">
+            {{ userInfo.statusMessage || '사용자 작성 멘트' }}
+          </p>
+          <textarea v-else v-model="userInfo.statusMessage" class="form-control form-control-sm h-100"
+            placeholder="상태 메시지를 입력하세요" maxlength="200"></textarea>
+        </div>
+
+        <!-- 홈주인 -->
+        <div class="border border-dark">
+          <div class="d-flex align-items-center">
+            <span class="small me-1">홈주인</span>
+            <span class="small">{{ userInfo.nickname || '나' }}</span>
+          </div>
+        </div>
+
+        <!-- 친구 목록(파도타기) -->
+        <div>
+          <select v-model="selectedFriend" class="form-select form-select-sm" @change="goToFriendMiniHome">
+            <option disabled value="">[파도타기]</option>
+            <option v-for="user in users" :key="user.userId" :value="user.loginId">
+              {{ user.nickname }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 오른쪽 영역 -->
+      <div class="d-flex flex-grow-1 col-9 flex-column border border-black">
+        <!-- 상단 -->
+        <div class="d-flex border border-dark h-25">
+          <div class="d-flex col-8 justify-content-center align-items-center">
+            <span class="w-100 text-center">{{ userInfo.emptySpaceText || '서비스 준비 중...' }}</span>
+          </div>
+
+          <div class="d-flex flex-grow-1 p-2" v-if="userInfo.youtubeVideoId">
+            <iframe :src="`https://www.youtube.com/embed/${userInfo.youtubeVideoId}`" frameborder="0"
+              style="width: 100%; height: 100%"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen></iframe>
+          </div>
+          <div class="d-flex flex-grow-1 p-2 justify-content-center align-items-center bg-light" v-else>
+            <span class="text-muted">동영상 없음</span>
+          </div>
+        </div>
+
+        <!-- 메인 -->
+        <div class="d-flex flex-grow-1 p-1 justify-content-center align-items-center border border-dark">
+          <div
+            class="d-flex col-11 justify-content-center align-items-center h-100 border border-dark position-relative">
+
+            <div v-if="activeTab === 'home'"
+              class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center">
+              <img
+                :src="userInfo.miniroomImage || 'https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9938F0375BBEF5CC21'"
+                style="width: 100%; height: 100%; object-fit: contain;" alt="미니룸" class="img-fluid" />
+            </div>
+
+            <div v-else-if="activeTab === 'guestbook'" class="position-absolute w-100 h-100 d-flex p-3 overflow-auto">
+              <GuestbookView :mini-home-owner-login-id="miniHomeOwnerLoginId" />
+            </div>
+
+            <div v-else-if="activeTab === 'photos'" class="position-absolute w-100 h-100 p-3 overflow-auto">
+              <h6>사진첩</h6>
+              <div class="row">
+                <div v-for="photo in photosList" :key="photo.id" class="col-4 mb-2">
+                  <img :src="photo.url" :alt="photo.title" class="img-fluid border" @click="viewPhoto(photo)" />
+                  <small class="d-block text-center">{{ photo.title }}</small>
+                </div>
+                <div v-if="photosList.length === 0" class="text-center text-muted w-100">서비스 준비 중...</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 탭 -->
+          <div class="d-flex flex-column h-100 flex-grow-1 justify-content-start">
+            <div class="d-flex flex-column flex-grow-1 justify-content-start">
+              <ul class="nav nav-tabs flex-column">
+                <li class="nav-item border border-dark">
+                  <a class="nav-link" :class="{ active: activeTab === 'home' }" href="#"
+                    @click.prevent="activeTab = 'home'">홈</a>
+                </li>
+                <li class="nav-item border border-dark">
+                  <a class="nav-link" :class="{ active: activeTab === 'guestbook' }" href="#"
+                    @click.prevent="changeTab('guestbook')">방명록</a>
+                </li>
+                <li class="nav-item border border-dark">
+                  <a class="nav-link" :class="{ active: activeTab === 'photos' }" href="#"
+                    @click.prevent="changeTab('photos')">사진첩</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 
 <script>
-// Vue의 'Composition API'를 사용하기 위한 필수 라이브러리들을 가져옵니다.
-import axios from 'axios' // HTTP 통신을 위한 라이브러리입니다.
+import axios from 'axios'
 import GuestbookView from './GuestbookView.vue'
-
 
 export default {
   components: { GuestbookView },
@@ -271,13 +259,15 @@ export default {
 
   data() {
     return {
-      users: [], //사용자를 담을 배열
       isEditing: false,
       isSaving: false,
       previewImage: null,
       saveMessage: '',
       saveMessageClass: '',
-      loginUserId: null, // 로그인한 사용자의 ID를 저장할 변수 추가 💡
+
+      // 방문 중인 미니홈피 주인의 로그인 ID를 저장할 변수
+      miniHomeOwnerLoginId: null,
+      currentLoginId: null,
 
       // 미니 홈페이지 로딩시 로그인 사용자 정보 담을 공간
       userInfo: {
@@ -295,6 +285,9 @@ export default {
         backgroundColor: '#f8f9fa',
         theme: null,
       },
+      // 사용자 리스트 담을 배열
+      users: [],
+      selectedFriend: '',
 
       // 수정 전 원본 데이터 백업 (취소 기능을 위해)
       originalUserInfo: {},
@@ -307,65 +300,53 @@ export default {
     }
   },
 
-  // route 객체의 변경을 감시하는 watch 옵션
   watch: {
-    // $route.params.loginId의 변화를 감지합니다.
-    '$route.params.loginId'(newLoginId) {
-      // 새로운 loginId로 미니홈피 데이터를 다시 불러오는 메서드를 호출합니다.
-      // 이 로직은 `mounted()` 훅에 있는 로직과 동일해야 합니다.
-      this.fetchMinihome(newLoginId);
-      this.getUsers(newLoginId);
+    // 라우트 변경 감지
+    '$route'(to, fromRoute) { // 'from'을 'fromRoute'로 변경
+      console.log('라우트 변경됨:', to.params.loginId);
+
+      // 새로운 사용자 ID로 데이터 다시 로드
+      if (to.params.loginId) {
+        this.miniHomeOwnerLoginId = to.params.loginId;
+        this.fetchMinihome(this.miniHomeOwnerLoginId);
+        console.log('currentLoginId 설정:', this.currentLoginId);
+        console.log('miniHomeOwnerLoginId 설정:', this.miniHomeOwnerLoginId);
+        console.log('라우트 변경됨:', to.params.loginId);
+      }
     }
   },
 
-  // 라이플사이클 훅 - vue 컴포넌트가 마운트 된 후 호출됨.
+  // 라이플사이클 훅 - vue 컴포넌트가 최초로! 마운트 된 후 호출됨.
   mounted() {
-    // 세션 스토리지에서 로그인 아이디를 가져옵니다.
-    //const storedUserId = sessionStorage.getItem('loginId');
-    let targetLoginId;
+    // 1. 세션 스토리지에서 로그인 ID를 가져와 this.currentLoginId에 할당합니다.
+    this.currentLoginId = sessionStorage.getItem('loginId');
 
-    // 친구 홈피 방문(URL 파라미터가 있음)
-    if(this.$route.params.loginId) {
-      targetLoginId = this.$route.params.loginId;
-    }
+    // 2. URL 파라미터에서 방문한 미니홈피의 ID를 가져옵니다.
+    const miniHomeOwnerLoginId = this.$route.params.loginId;
 
-    // 내 홈피(URL 파라미터 없음 -> 세션에 저장된 loginId 사용)
-    else {
-      targetLoginId = sessionStorage.getItem('loginId');
-    }
+    // 전체 사용자 리스트 가져오기
+    this.getUsers();
 
-    // 아이디가 존재할 경우, this.loginUserId에 할당하고 미니홈피 데이터를 불러옵니다.
-    if(targetLoginId) {
-      this.loginUserId = targetLoginId; // 홈피주인 id저장
-      this.fetchMinihome(targetLoginId); // 홈피 데이터 불러오기
-      this.getUsers(targetLoginId) // 친구목록 불러오기
+    if (miniHomeOwnerLoginId) {
+      this.fetchMinihome(miniHomeOwnerLoginId);
+    } else {
+      console.error('가져올 사용자가 없습니다.');
+      this.$router.push('/login');
     }
-    else {
-      // 아이디가 없으면 로그인 페이지로 리디렉션하거나,
-      // 에러 메시지를 표시하는 등의 처리를 할 수 있습니다.
-      console.error('로그인된 사용자가 없습니다.');
-      // 예시: this.$router.push('/login');
-    }
- 
-    //const loginId = this.$route.params.loginId || sessionStorage.getItem('loginId')
-    // this.getUsers(loginId)
+  },
 
-    // // 아이디가 존재할 경우, this.loginUserId에 할당하고 미니홈피 데이터를 불러옵니다.
-    // if (loginId) {
-    //   this.loginUserId = loginId;
-    //   this.fetchMinihome(loginId);
-    //   this.getUsers(loginId)
-    // } else {
-    //   // 아이디가 없으면 로그인 페이지로 리디렉션하거나,
-    //   // 에러 메시지를 표시하는 등의 처리를 할 수 있습니다.
-    //   console.error('로그인된 사용자가 없습니다.');
-    //   // 예시: this.$router.push('/login');
-    // }
+  // computed 속성 추가
+  computed: {
+    // 현재 보고 있는 미니홈피가 내 것인지 판단하는 속성
+    isMyMinihome() {
+      // 방문 중인 ID가 현재 로그인 ID와 같으면 true 반환
+      return this.miniHomeOwnerLoginId === this.currentLoginId;
+    }
   },
 
   methods: {
     // 미니홈피 화면 데이터 조회
-    async fetchMinihome(userId) {
+    async fetchMinihome(miniHomeOwnerLoginId) {
       try {
         // Axios 라이브러리를 사용하여 GET 요청
         // {data} : 서버로 부터 실제 응답 데이터는 data 속성 안에 있음.
@@ -375,29 +356,29 @@ export default {
             'http://localhost:8080/api/showMiniHome',
             {
               // 요청과 함께 보낼 파라미터 정의
-              params: { userId },
+              params: { miniHomeOwnerLoginId },
             }
           )
 
-        // 로그인한 사용자 정보 담기
+        // 미니홈피 사용자 정보 담기
         this.userInfo = {
-          // 로그인한 사용자의 사용자 id
+          // 미니홈피 사용자의 사용자 id
           userId: data.userId,
-          // 로그인한 사용자의 닉네임
+          // 미니홈피 사용자의 닉네임
           nickname: data.nickname,
-          // 로그인한 사용자의 프로필 사진 경로
+          // 미니홈피 사용자의 프로필 사진 경로
           profileImage: data.profileImage,
-          // 로그인한 사용자의 기분
+          // 미니홈피 사용자의 기분
           todayMood: data.todayMood,
-          // 로그인한 사용자의 상태메시지
+          // 미니홈피 사용자의 상태메시지
           statusMessage: data.statusMessage,
-          // 로그인한 사용자의 생일
+          // 미니홈피 사용자의 생일
           birthDate: data.birthDate,
-          // 로그인한 사용자의 성별
+          // 미니홈피 사용자의 성별
           gender: data.gender,
-          // 로그인한 사용자의 지역
+          // 미니홈피 사용자의 지역
           region: data.region,
-          // 로그인한 사용자의 취미
+          // 미니홈피 사용자의 취미
           hobby: data.hobby,
           // 미니홈피에 설정한 BGM 유투브 ID 없는 경우, null 값
           youtubeVideoId: data.youtubeVideoId || null,
@@ -406,7 +387,7 @@ export default {
           // 미니홈피에 설정한 테마 id 없으면, null 값
           theme: data.appliedThemeId || null,
         }
-        // 로그인한 사용자 미니홈피의 방문자 통계
+        // 미니홈피 사용자 미니홈피의 방문자 통계
         this.visitCount = data.visitCount
           // 값이 있는 경우
           ? data.visitCount
@@ -420,15 +401,23 @@ export default {
       }
     },
 
-    // 수정/저장 토글
     async toggleEdit() {
       if (this.isEditing) {
-        // 저장 버튼 클릭 시
-        await this.saveMinihome()
+        // 현재 수정 모드인 경우: 저장 로직 실행
+        this.saveMinihome();
       } else {
-        // 수정 버튼 클릭 시 - 원본 데이터 백업
-        this.originalUserInfo = { ...this.userInfo }
-        this.isEditing = true
+        // 현재 수정 모드가 아닌 경우: 수정 모드로 전환
+        // **1. 현재 보고 있는 미니홈피가 내 것인지 확인**
+        if (!this.isMyMinihome) {
+          this.showMessage('본인의 미니홈피만 수정할 수 있습니다.', 'error');
+          return;
+        }
+
+        // **2. isEditing 상태를 true로 변경**
+        this.isEditing = true;
+
+        // **3. 수정 취소를 위해 원본 데이터 백업**
+        this.originalUserInfo = { ...this.userInfo };
       }
     },
 
@@ -518,6 +507,9 @@ export default {
     // 탭 변경
     changeTab(tabName) {
       this.activeTab = tabName
+      if (tabName === "guestbook" && this.miniHomeOwnerLoginId) {
+        // `GuestbookView`가 watch로 props 변경을 감지하도록 구현
+      }
     },
 
     // 테마 이름 반환
@@ -550,36 +542,28 @@ export default {
       this.profileImageFile = null
     },
 
-
     /**
-     * 친구(사용자 전체)를 서버에서 가져와 화면에 표시하는 작업
-     * @param loginId
+     * 사용자 전체 목록을 서버에서 가져와 화면에 표시하는 작업
      */
-    async getUsers(loginId) {
-      try{
-        const response = await axios.get('http://localhost:8080/api/show-users', {
-        params: { loginId },
-      });
-      console.log("요청 loginId:", loginId);
-      console.log("서버 응답:", response.data);
-
-      this.users = response.data
-      } catch(err) {
+    async getUsers() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/friend/users');
+        this.users = response.data
+      } catch (err) {
         // 요청 실패 시 에러를 콘솔에 출력합니다.
         console.error(`에러(list) -> ${err}`)
       }
     },
 
-    goToFriendHome() {
+    goToFriendMiniHome() {
       if (this.selectedFriend) {
-      this.$router.push({ 
-          name: 'friend-minihome',
-          params: { loginId: this.selectedFriend } 
+        this.$router.push({
+          name: 'minihome',
+          params: { loginId: this.selectedFriend }
         })
       }
     }
 
-    
   }
 }
 </script>

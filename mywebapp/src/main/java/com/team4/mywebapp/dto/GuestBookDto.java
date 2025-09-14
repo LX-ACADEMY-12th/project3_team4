@@ -10,7 +10,14 @@ public class GuestBookDto {
 	private LocalDateTime writtenAt; // 작성일시
 	private int guestBookMiniHomeId;
 	private int guestBookWriterId;
+	private String profilePhotoPath;
 	
+	public String getProfilePhotoPath() {
+		return profilePhotoPath;
+	}
+	public void setProfilePhotoPath(String profilePhotoPath) {
+		this.profilePhotoPath = profilePhotoPath;
+	}
 	public Long getGuestBookId() {
 		return guestBookId;
 	}
