@@ -80,8 +80,4 @@ public class MinihomePageDTO {
     public void setTodayCount(Integer todayCount) { this.todayCount = todayCount; }
     public Integer getTotalCount() { return totalCount; }
     public void setTotalCount(Integer totalCount) { this.totalCount = totalCount; }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 79eb279cc789d85736a242ff9e7895324b0b112f
