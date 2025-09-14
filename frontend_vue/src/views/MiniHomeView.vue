@@ -5,6 +5,7 @@
     width: '900px',
     'background-color': userInfo.backgroundColor,
   }">
+
     <!-- 상단 헤더 -->
     <div class="d-flex p-2 mb-3 text-black justify-content-between align-items-center">
       <div class="d-flex flex-column p-3" :style="{
@@ -13,6 +14,7 @@
         width: '900px',
         'background-color': userInfo.backgroundColor,
       }">
+
         <!-- 상단 헤더 -->
         <div class="d-flex p-2 mb-3 text-black justify-content-between align-items-center">
           <div class="d-flex flex-column ms-4 me-4 align-items-center border border-dark">
@@ -41,10 +43,12 @@
           <button type="button" class="btn-close" @click="saveMessage = ''"></button>
         </div>
 
+        <!-- 메인 컨텐츠 영역 -->
         <div class="d-flex flex-fill flex-row">
+
           <!-- 왼쪽 영역 -->
           <div class="d-flex flex-column bg-white p-2 me-2 col-3 sidebar-left">
-            <!-- 프로필 -->
+            <!-- 프로필 영역 -->
             <div class="d-flex flex-column align-items-center mb-2 border border-dark profile-box">
               <div class="w-100 h-100">
                 <div v-if="isEditing">
@@ -59,7 +63,7 @@
               </div>
             </div>
 
-            <!-- 기분 -->
+            <!-- 기분 영역 -->
             <div class="text-center mb-1 small">
               <div v-if="isEditing">
                 <select v-model="userInfo.todayMood" class="form-select form-select-sm">
@@ -76,7 +80,7 @@
               <div v-else class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</div>
             </div>
 
-            <!-- 생일 + 성별 -->
+            <!-- 생일+성별 영역 -->
             <div class="text-center mb-1 small">
               <div v-if="isEditing" class="d-flex gap-1">
                 <input type="date" v-model="userInfo.birthDate" class="form-control form-control-sm" />
@@ -92,7 +96,7 @@
               </div>
             </div>
 
-            <!-- 지역 -->
+            <!-- 지역 영역 -->
             <div class="text-center mb-1 small">
               <div v-if="isEditing">
                 <input type="text" v-model="userInfo.region" class="form-control form-control-sm" placeholder="지역 입력"
@@ -101,7 +105,7 @@
               <div v-else>지역: {{ userInfo.region || '등록 안 됨' }}</div>
             </div>
 
-            <!-- 취미 -->
+            <!-- 취미 영역 -->
             <div class="text-center mb-2 small">
               <div v-if="isEditing">
                 <select v-model="userInfo.hobby" class="form-select form-select-sm">
@@ -168,7 +172,7 @@
             </div>
           </div>
 
-          <!-- 오른쪽 -->
+          <!-- 오른쪽 영역 -->
           <div class="d-flex flex-grow-1 flex-column col-9 border border-black">
             <!-- 상단 -->
             <div class="d-flex border border-dark h-25">
@@ -234,7 +238,10 @@
             </div>
           </div>
         </div>
+
       </div>
+    </div>
+  </div>
 </template>
 
 
@@ -244,7 +251,9 @@ import GuestbookView from './GuestbookView.vue'
 
 export default {
   components: { GuestbookView },
+
   name: 'MiniHomepage',
+
   data() {
     return {
       isEditing: false,
@@ -252,7 +261,11 @@ export default {
       previewImage: null,
       saveMessage: '',
       saveMessageClass: '',
+      loginUserId: null, // 로그인한 사용자의 ID를 저장할 변수 추가 💡
+
+      // 미니 홈페이지 로딩시 로그인 사용자 정보 담을 공간
       userInfo: {
+        // userId는 loginId 아님!
         userId: null,
         nickname: null,
         profileImage: null,
@@ -266,6 +279,7 @@ export default {
         backgroundColor: '#f8f9fa',
         theme: null,
       },
+
       // 수정 전 원본 데이터 백업 (취소 기능을 위해)
       originalUserInfo: {},
       visitCount: { todayCount: 0, totalCount: 0 },
@@ -276,37 +290,76 @@ export default {
       activeTab: 'home',
     }
   },
+
+  // 라이플사이클 훅 - vue 컴포넌트가 마운트 된 후 호출됨.
   mounted() {
-    // 최초 렌더링 시 서버에서 화면용 DTO 받기
-    this.fetchMinihome(this.loginUserPk)
+    // 세션 스토리지에서 로그인 아이디를 가져옵니다.
+    const storedUserId = sessionStorage.getItem('loginId');
+
+    // 아이디가 존재할 경우, this.loginUserId에 할당하고 미니홈피 데이터를 불러옵니다.
+    if (storedUserId) {
+      this.loginUserId = storedUserId;
+      this.fetchMinihome(this.loginUserId);
+    } else {
+      // 아이디가 없으면 로그인 페이지로 리디렉션하거나,
+      // 에러 메시지를 표시하는 등의 처리를 할 수 있습니다.
+      console.error('로그인된 사용자가 없습니다.');
+      // 예시: this.$router.push('/login');
+    }
   },
+
   methods: {
     // 미니홈피 화면 데이터 조회
     async fetchMinihome(userId) {
       try {
-        const { data } = await axios.get('http://localhost:8080/api/showMiniHome', {
-          params: { userId },
-        })
+        // Axios 라이브러리를 사용하여 GET 요청
+        // {data} : 서버로 부터 실제 응답 데이터는 data 속성 안에 있음.
+        // 응답 객체에서 data 속성만을 추출하여 data 변수에 저장
+        const { data } =
+          await axios.get(
+            'http://localhost:8080/api/showMiniHome',
+            {
+              // 요청과 함께 보낼 파라미터 정의
+              params: { userId },
+            }
+          )
 
+        // 로그인한 사용자 정보 담기
         this.userInfo = {
+          // 로그인한 사용자의 사용자 id
           userId: data.userId,
+          // 로그인한 사용자의 닉네임
           nickname: data.nickname,
+          // 로그인한 사용자의 프로필 사진 경로
           profileImage: data.profileImage,
+          // 로그인한 사용자의 기분
           todayMood: data.todayMood,
+          // 로그인한 사용자의 상태메시지
           statusMessage: data.statusMessage,
+          // 로그인한 사용자의 생일
           birthDate: data.birthDate,
+          // 로그인한 사용자의 성별
           gender: data.gender,
+          // 로그인한 사용자의 지역
           region: data.region,
+          // 로그인한 사용자의 취미
           hobby: data.hobby,
+          // 미니홈피에 설정한 BGM 유투브 ID 없는 경우, null 값
           youtubeVideoId: data.youtubeVideoId || null,
+          // 미니홈피에 설정한 배경색상 없으면, 기본 설정값
           backgroundColor: data.backgroundColor || '#f8f9fa',
-          theme: data.appliedThemeId ?? null,
+          // 미니홈피에 설정한 테마 id 없으면, null 값
+          theme: data.appliedThemeId || null,
         }
-
+        // 로그인한 사용자 미니홈피의 방문자 통계
         this.visitCount = data.visitCount
+          // 값이 있는 경우
           ? data.visitCount
+          // 값이 없는 경우
           : { todayCount: data.todayCount || 0, totalCount: data.totalCount || 0 }
-      } catch (error) {
+      }
+      // 에러가 발생할 경우
+      catch (error) {
         console.error('미니홈피 정보를 가져오는데 실패했습니다.', error)
         this.showMessage('미니홈피 정보를 불러오는데 실패했습니다.', 'error')
       }

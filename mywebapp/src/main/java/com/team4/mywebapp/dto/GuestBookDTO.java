@@ -2,14 +2,13 @@ package com.team4.mywebapp.dto;
 
 import java.time.LocalDateTime;
 
-public class GuestBookDTO {
+public class GuestBookDto {
 
 	private Long guestBookId;
 	private String nickname;
 	private String guestBookContent;
 	private LocalDateTime writtenAt; // 작성일시
 	private int guestBookMiniHomeId;
-	// private int guestBookReplyId;
 	private int guestBookWriterId;
 	
 	public Long getGuestBookId() {
@@ -45,14 +44,6 @@ public class GuestBookDTO {
 		this.guestBookMiniHomeId = guestBookMiniHomeId;
 	}
 	
-	/*
-	public int getGuestBookReplyId() {
-		return guestBookReplyId;
-	}
-	public void setGuestBookReplyId(int guestBookReplyId) {
-		this.guestBookReplyId = guestBookReplyId;
-	}
-	*/
 	public int getGuestBookWriterId() {
 		return guestBookWriterId;
 	}

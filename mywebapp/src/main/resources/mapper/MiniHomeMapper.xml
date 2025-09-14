@@ -1,48 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.team4.mywebapp.mapper.MiniHomeMapper">
 
-<!-- 
-<select id="getMiniHomeByOwner" parameterType="int" resultType="com.team4.mywebapp.dto.MiniHomeDto">	
-	SELECT 
-		minihome_id as minihomeId
-		, title
-		, created_at as createdAt
-		, updated_at as updatedAt
-		, background_color_id as backgroundColorId
-		, applied_theme_id as appliedThemeId
-		, theme_theme_id as themeThemeId
-	FROM minihome
-	WHERE minihome_owner_id = #{minihomeOwnerId}
-</select>
- -->
+	<!-- 로그인한 사용자 미니홈피 정보 조회 -->
+	<resultMap id="UserInfoDtoResultMap" type="MiniHomeDto">
+		<result column="user_id" property="userId" />
+		<result column="nickname" property="nickname" />
+		<result column="profile_photo_path" property="profileImagePath" />
+		<result column="status_message" property="statusMessage" />
+		<result column="youtube_url" property="youtubeVideoId" />
+		<result column="background_color_id" property="backgroundColor" />
+		<association property="visitCount"
+			resultMap="VisitCountDtoResultMap" />
+	</resultMap>
 
-<!-- id로 미니홈 조회 -->
-<select id="getMiniHomeById" parameterType="int" resultType="MiniHomeDto">	
-	SELECT 
-		minihome_owner_id as minihomeOwnerId 
-		, title
-		, created_at as createdAt
-		, updated_at as updatedAt
-		, background_color_id as backgroundColorId
-		, applied_theme_id as appliedThemeId
-		, theme_theme_id as themeThemeId
-	FROM minihome
-	WHERE minihome_id = #{minihomeId}
-</select>
-
-<!-- 미니홈 전체 수정 -->
-<update id="updateMiniHome" parameterType="MiniHomeDto">
-	UPDATE minihome
-	SET 
-		title = #{title}
-		, background_color_id = #{backgroundColorId}
-		, applied_theme_id = #{appliedThemeId}
-		, updated_at = NOW()
-	WHERE minihome_id = #{minihomeId}	
-</update>
-
-
+	<resultMap id="VisitCountDtoResultMap" type="VisitCountDto">
+		<result column="today_count" property="todayCount" />
+		<result column="total_count" property="totalCount" />
+	</resultMap>
+	
+	<select id="getMiniHomeByUserId" resultMap="UserInfoDtoResultMap">
+		SELECT
+			u.user_id,
+			u.nickname,
+			u.profile_photo_path, 
+			u.status_message,
+			b.youtube_url,
+			mh.background_color_id,
+			(SELECT COUNT(*) FROM visit_log WHERE DATE(visited_at) = CURDATE() AND minihome_minihome_id = mh.minihome_id) AS today_count,
+			(SELECT SUM(daily_visitors) FROM visit_stats WHERE target_minihome_id = mh.minihome_id) AS total_count
+		FROM
+			user AS u
+			LEFT JOIN minihome AS mh ON u.user_id = mh.minihome_owner_id
+			LEFT JOIN bgm AS b ON mh.minihome_id = b.minihome_minihome_id
+		WHERE u.login_id = #{userId};
+	</select>
 
 </mapper>

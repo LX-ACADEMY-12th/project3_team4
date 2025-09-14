@@ -2,8 +2,8 @@ package com.team4.mywebapp.dto;
 
 public class LoginDto {
 	private String loginId;
-	private String loginPw;
-	
+    private String loginPw;
+    
 	public String getLoginId() {
 		return loginId;
 	}
@@ -16,5 +16,4 @@ public class LoginDto {
 	public void setLoginPw(String loginPw) {
 		this.loginPw = loginPw;
 	}
-
 }

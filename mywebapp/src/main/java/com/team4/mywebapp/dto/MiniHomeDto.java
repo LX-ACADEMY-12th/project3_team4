@@ -4,69 +4,62 @@ import java.util.Date;
 
 public class MiniHomeDto {
 	
-	private int minihomeId;
-	private String title;
-	private Date createdAt;
-	private Date updatedAt;
-	private String backgroundColorId;
-	private int appliedThemeId;
-	private int minihomeOwnerId;
-	private int themeThemeId;
+	private int userId;
+	private String nickname;
+	private String profileImagePath;
+	private String todayMood;
+	private String statusMessage;
+	private String youtubeVideoId;
+	private String backgroundColor;
+	// 방문자 통계 DTO	
+	private VisitCountDto visitCount;
 	
-	
-	public int getMinihomeId() {
-		return minihomeId;
+	public VisitCountDto getVisitCount() {
+		return visitCount;
 	}
-	public void setMinihomeId(int minihomeId) {
-		this.minihomeId = minihomeId;
+	public void setVisitCount(VisitCountDto visitCount) {
+		this.visitCount = visitCount;
 	}
-	public String getTitle() {
-		return title;
+	public int getUserId() {
+		return userId;
 	}
-	public void setTitle(String title) {
-		this.title = title;
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
-	public Date getCreatedAt() {
-		return createdAt;
+	public String getNickname() {
+		return nickname;
 	}
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
-	public Date getUpdatedAt() {
-		return updatedAt;
+	public String getProfileImagePath() {
+		return profileImagePath;
 	}
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
+	public void setProfileImagePath(String profileImagePath) {
+		this.profileImagePath = profileImagePath;
 	}
-	public String getBackgroundColorId() {
-		return backgroundColorId;
+	public String getTodayMood() {
+		return todayMood;
 	}
-	public void setBackgroundColorId(String backgroundColorId) {
-		this.backgroundColorId = backgroundColorId;
+	public void setTodayMood(String todayMood) {
+		this.todayMood = todayMood;
 	}
-	public int getAppliedThemeId() {
-		return appliedThemeId;
+	public String getStatusMessage() {
+		return statusMessage;
 	}
-	public void setAppliedThemeId(int appliedThemeId) {
-		this.appliedThemeId = appliedThemeId;
+	public void setStatusMessage(String statusMessage) {
+		this.statusMessage = statusMessage;
 	}
-	public int getMinihomeOwnerId() {
-		return minihomeOwnerId;
+	public String getYoutubeVideoId() {
+		return youtubeVideoId;
 	}
-	public void setMinihomeOwnerId(int minihomeOwnerId) {
-		this.minihomeOwnerId = minihomeOwnerId;
+	public void setYoutubeVideoId(String youtubeVideoId) {
+		this.youtubeVideoId = youtubeVideoId;
 	}
-	public int getThemeThemeId() {
-		return themeThemeId;
+	public String getBackgroundColor() {
+		return backgroundColor;
 	}
-	public void setThemeThemeId(int themeThemeId) {
-		this.themeThemeId = themeThemeId;
+	public void setBackgroundColor(String backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
-	
-	
-	
-	
-	
-	
-
 }
