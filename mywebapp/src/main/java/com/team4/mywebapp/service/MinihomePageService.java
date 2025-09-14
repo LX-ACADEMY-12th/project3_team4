@@ -22,4 +22,8 @@ public class MinihomePageService {
         }
         return dto;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 79eb279cc789d85736a242ff9e7895324b0b112f

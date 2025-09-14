@@ -39,4 +39,8 @@
     WHERE m.minihome_owner_id = #{minihomeOwnerId}
   </select>
 
+<<<<<<< HEAD
 </mapper>
+=======
+</mapper>
+>>>>>>> 79eb279cc789d85736a242ff9e7895324b0b112f

@@ -23,10 +23,16 @@
       </div>
 
       <div>
-        <button class="btn btn-sm btn-outline-info" @click="toggleEdit">
-          {{ isEditing ? '저장' : '수정' }}
+        <button class="btn btn-sm btn-outline-info" @click="toggleEdit" :disabled="isSaving">
+          {{ isSaving ? '저장중...' : (isEditing ? '저장' : '수정') }}
         </button>
       </div>
+    </div>
+
+    <!-- 저장 성공/실패 메시지 -->
+    <div v-if="saveMessage" class="alert alert-dismissible fade show" :class="saveMessageClass" role="alert">
+      {{ saveMessage }}
+      <button type="button" class="btn-close" @click="saveMessage = ''"></button>
     </div>
 
     <div class="d-flex flex-fill flex-row">
@@ -36,8 +42,9 @@
         <div class="d-flex flex-column align-items-center mb-2 border border-dark profile-box">
           <div class="w-100 h-100">
             <div v-if="isEditing">
-              <input type="file" @change="onFileChange" class="form-control form-control-sm mb-1" />
+              <input type="file" @change="onFileChange" class="form-control form-control-sm mb-1" accept="image/*" />
               <img v-if="previewImage" :src="previewImage" class="profile-img" />
+              <img v-else-if="userInfo.profileImage" :src="userInfo.profileImage" class="profile-img" />
             </div>
             <img
               v-else
@@ -52,10 +59,13 @@
           <div v-if="isEditing">
             <select v-model="userInfo.todayMood" class="form-select form-select-sm">
               <option value="">[기분 선택]</option>
-              <option>😊 행복</option>
-              <option>😢 슬픔</option>
-              <option>😡 화남</option>
-              <option>😴 피곤</option>
+              <option value="😊 행복">😊 행복</option>
+              <option value="😢 슬픔">😢 슬픔</option>
+              <option value="😡 화남">😡 화남</option>
+              <option value="😴 피곤">😴 피곤</option>
+              <option value="😍 설렘">😍 설렘</option>
+              <option value="🤔 고민중">🤔 고민중</option>
+              <option value="😪 휴식중">😪 휴식중</option>
             </select>
           </div>
           <div v-else class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</div>
@@ -67,8 +77,8 @@
             <input type="date" v-model="userInfo.birthDate" class="form-control form-control-sm" />
             <select v-model="userInfo.gender" class="form-select form-select-sm" style="max-width: 70px;">
               <option value="">성별</option>
-              <option>남자</option>
-              <option>여자</option>
+              <option value="남자">남자</option>
+              <option value="여자">여자</option>
             </select>
           </div>
           <div v-else>
@@ -85,6 +95,7 @@
               v-model="userInfo.region"
               class="form-control form-control-sm"
               placeholder="지역 입력"
+              maxlength="50"
             />
           </div>
           <div v-else>지역: {{ userInfo.region || '등록 안 됨' }}</div>
@@ -95,11 +106,13 @@
           <div v-if="isEditing">
             <select v-model="userInfo.hobby" class="form-select form-select-sm">
               <option value="">[취미 선택]</option>
-              <option>독서</option>
-              <option>운동</option>
-              <option>음악</option>
-              <option>여행</option>
-              <option>게임</option>
+              <option value="독서">독서</option>
+              <option value="운동">운동</option>
+              <option value="음악">음악</option>
+              <option value="여행">여행</option>
+              <option value="게임">게임</option>
+              <option value="요리">요리</option>
+              <option value="영화감상">영화감상</option>
             </select>
           </div>
           <div v-else>취미: {{ userInfo.hobby || '등록 안 됨' }}</div>
@@ -116,7 +129,7 @@
             </select>
           </div>
           <div v-else>
-            배경색: 
+            배경색:
             <span
               class="d-inline-block"
               :style="{ backgroundColor: userInfo.backgroundColor, width: '40px', height: '15px', border: '1px solid #000' }"
@@ -127,19 +140,15 @@
         <!-- 테마 선택 -->
         <div class="text-center mb-2 small">
           <div v-if="isEditing">
-            <select v-model="userInfo.backgroundColor" class="form-select form-select-sm">
-              <option value="#f8f9fa">심플(기본)</option>
-              <option value="#cce5ff">귀여운</option>
-              <option value="#fddde6">세련된</option>
-              <option value="#212529">빈티지</option>
+            <select v-model="userInfo.theme" class="form-select form-select-sm">
+              <option value="1">심플(기본)</option>
+              <option value="2">귀여운</option>
+              <option value="3">세련된</option>
+              <option value="4">빈티지</option>
             </select>
           </div>
           <div v-else>
-            테마: 
-            <span
-              class="d-inline-block"
-              :style="{ backgroundColor: userInfo.theme, width: '40px', height: '15px', border: '1px solid #000' }"
-            ></span>
+            테마: {{ getThemeName(userInfo.theme) }}
           </div>
         </div>
 
@@ -155,6 +164,8 @@
             v-else
             v-model="userInfo.statusMessage"
             class="form-control form-control-sm h-100"
+            placeholder="상태 메시지를 입력하세요"
+            maxlength="200"
           ></textarea>
         </div>
 
@@ -249,7 +260,10 @@ export default {
   data() {
     return {
       isEditing: false,
+      isSaving: false,
       previewImage: null,
+      saveMessage: '',
+      saveMessageClass: '',
       userInfo: {
         userId: null,
         nickname: null,
@@ -260,12 +274,13 @@ export default {
         gender: null,
         region: null,
         hobby: null,
-        youtubeVideoId: null, // 서버에서 아직 안 주면 null 유지
+        youtubeVideoId: null,
         backgroundColor: '#f8f9fa',
-        theme: null,          // appliedThemeId를 잠시 theme에 꽂아줌
+        theme: null,
       },
+      // 수정 전 원본 데이터 백업 (취소 기능을 위해)
+      originalUserInfo: {},
       visitCount: { todayCount: 0, totalCount: 0 },
-      //api/showMiniHome 는 숫자 userId 필요
       loginUserPk: 3, // 임시: 실제 로그인 후 userId로 교체
       friendsList: [],
       guestbookList: [],
@@ -274,18 +289,16 @@ export default {
     }
   },
   mounted() {
-    // 최초 렌더링 시 서버에서 화면용 DTO 받기
     this.fetchMinihome(this.loginUserPk)
   },
   methods: {
-    // 미니홈피 화면 데이터를 띄울거임
+    // 미니홈피 화면 데이터 조회
     async fetchMinihome(userId) {
       try {
         const { data } = await axios.get('http://localhost:8080/api/showMiniHome', {
           params: { userId },
         })
 
-        // 서버 DTO 그대로 매핑
         this.userInfo = {
           userId: data.userId,
           nickname: data.nickname,
@@ -298,38 +311,148 @@ export default {
           hobby: data.hobby,
           youtubeVideoId: data.youtubeVideoId || null,
           backgroundColor: data.backgroundColor || '#f8f9fa',
-          theme: data.appliedThemeId ?? null, // 현재 select는 theme에 묶여있음
+          theme: data.appliedThemeId ?? null,
         }
 
-        // 방문자수 묶음 처리 (visitCount 객체가 오면 그걸 쓰고, 아니면 today/total 합성)
         this.visitCount = data.visitCount
           ? data.visitCount
           : { todayCount: data.todayCount || 0, totalCount: data.totalCount || 0 }
       } catch (error) {
         console.error('미니홈피 정보를 가져오는데 실패했습니다.', error)
+        this.showMessage('미니홈피 정보를 불러오는데 실패했습니다.', 'error')
       }
     },
 
-    toggleEdit() {
+    // 수정/저장 토글
+    async toggleEdit() {
       if (this.isEditing) {
-        // 저장 버튼 눌렀을 때 나중에 update API 호출 자리
-        console.log('저장된 데이터:', this.userInfo)
-        // await axios.post('/api/minihome/update', payload)
+        // 저장 버튼 클릭 시
+        await this.saveMinihome()
+      } else {
+        // 수정 버튼 클릭 시 - 원본 데이터 백업
+        this.originalUserInfo = { ...this.userInfo }
+        this.isEditing = true
       }
-      this.isEditing = !this.isEditing
     },
 
+    // 미니홈피 정보 저장
+    async saveMinihome() {
+      this.isSaving = true
+
+      try {
+        // FormData로 파일과 데이터를 함께 전송
+        const formData = new FormData()
+
+        // 기본 사용자 정보 추가
+        formData.append('userId', this.userInfo.userId)
+        formData.append('todayMood', this.userInfo.todayMood || '')
+        formData.append('statusMessage', this.userInfo.statusMessage || '')
+        formData.append('birthDate', this.userInfo.birthDate || '')
+        formData.append('gender', this.userInfo.gender || '')
+        formData.append('region', this.userInfo.region || '')
+        formData.append('hobby', this.userInfo.hobby || '')
+        formData.append('youtubeVideoId', this.userInfo.youtubeVideoId || '')
+        formData.append('backgroundColor', this.userInfo.backgroundColor)
+        formData.append('appliedThemeId', this.userInfo.theme || '')
+
+        // 프로필 이미지 파일이 있으면 추가
+        if (this.profileImageFile) {
+          formData.append('profileImageFile', this.profileImageFile)
+        }
+
+        // API 호출
+        const response = await axios.post('http://localhost:8080/api/updateMiniHome', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+
+        if (response.data.success) {
+          this.showMessage('미니홈피가 성공적으로 저장되었습니다!', 'success')
+          this.isEditing = false
+
+          // 서버에서 반환된 새로운 프로필 이미지 URL이 있으면 업데이트
+          if (response.data.profileImageUrl) {
+            this.userInfo.profileImage = response.data.profileImageUrl
+          }
+
+          // 파일 관련 임시 데이터 초기화
+          this.profileImageFile = null
+          this.previewImage = null
+
+        } else {
+          throw new Error(response.data.message || '저장에 실패했습니다.')
+        }
+
+      } catch (error) {
+        console.error('미니홈피 저장 실패:', error)
+        this.showMessage(
+          error.response?.data?.message || '미니홈피 저장에 실패했습니다.',
+          'error'
+        )
+        // 에러 발생 시 원본 데이터로 복원
+        this.userInfo = { ...this.originalUserInfo }
+      } finally {
+        this.isSaving = false
+      }
+    },
+
+    // 프로필 이미지 파일 변경
     onFileChange(e) {
       const file = e.target.files[0]
       if (file) {
+        // 파일 크기 체크 (예: 5MB 제한)
+        if (file.size > 5 * 1024 * 1024) {
+          this.showMessage('파일 크기는 5MB 이하여야 합니다.', 'error')
+          return
+        }
+
+        // 파일 형식 체크
+        if (!file.type.startsWith('image/')) {
+          this.showMessage('이미지 파일만 업로드 가능합니다.', 'error')
+          return
+        }
+
+        this.profileImageFile = file
         this.previewImage = URL.createObjectURL(file)
-        this.userInfo.profileImage = this.previewImage
       }
     },
+
+    // 탭 변경
     changeTab(tabName) {
       this.activeTab = tabName
     },
-  },
+
+    // 테마 이름 반환
+    getThemeName(themeId) {
+      const themes = {
+        '1': '심플',
+        '2': '귀여운',
+        '3': '세련된',
+        '4': '빈티지'
+      }
+      return themes[themeId] || '심플'
+    },
+
+    // 메시지 표시
+    showMessage(message, type) {
+      this.saveMessage = message
+      this.saveMessageClass = type === 'success' ? 'alert-success' : 'alert-danger'
+
+      // 3초 후 메시지 자동 숨김
+      setTimeout(() => {
+        this.saveMessage = ''
+      }, 3000)
+    },
+
+    // 수정 취소
+    cancelEdit() {
+      this.userInfo = { ...this.originalUserInfo }
+      this.isEditing = false
+      this.previewImage = null
+      this.profileImageFile = null
+    }
+  }
 }
 </script>
 
@@ -383,5 +506,11 @@ textarea.form-control-sm {
 
 textarea.form-control-sm {
   resize: none;
+}
+
+.alert {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
 }
 </style>

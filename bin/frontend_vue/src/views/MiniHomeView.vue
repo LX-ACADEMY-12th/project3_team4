@@ -85,13 +85,14 @@
         <div class="d-flex flex-grow-1 p-1 justify-content-center align-items-center border border-dark">
           <div class="d-flex col-10 justify-content-center align-items-center h-100 border border-dark">
             <div v-if="activeTab === 'home'" class="w-100 h-100 d-flex justify-content-center align-items-center">
-              <img :src="userInfo.miniroomImage || 'https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9938F0375BBEF5CC21'"
+              <img
+                :src="userInfo.miniroomImage || 'https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9938F0375BBEF5CC21'"
                 alt="미니룸" class="img-fluid">
             </div>
 
             <div v-else-if="activeTab === 'guestbook'" class="w-100 h-100 p-3 overflow-auto">
               <GuestbookView />
-              <!-- 여기서부터 가라 
+              <!-- 여기서부터 가라
               <div class="mb-3">
                 <h6>방명록</h6>
                 <button class="btn btn-primary btn-sm" @click="showGuestbookForm = !showGuestbookForm">
@@ -116,7 +117,7 @@
                 </div>
                 <p class="small mb-1">{{ entry.content }}</p>
               </div>
-              
+
               여기까지 -->
 
               <div v-if="guestbookList.length === 0" class="text-center text-muted">
