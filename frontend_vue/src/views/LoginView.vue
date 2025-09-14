@@ -55,14 +55,17 @@ async function handleLogin() {
     const response = await axios.post('http://localhost:8080/api/login', loginData.value)
 
     // 서버 응답의 상태 코드를 확인. 200은 성공을 의미합니다.
-    if (response.status === 200) {
+    if (response.status === 200 && response.data) {
       alert('로그인 성공')
       // 로그인 성공 시 사용자의 아이디를 세션 스토리지에 저장.
       // 이렇게 저장된 값은 다른 페이지에서 사용자의 로그인 상태를 확인하는 데 사용됩니다.
-      sessionStorage.setItem('loginId', loginData.value.loginId)
+      const userData = response.data;
+      sessionStorage.setItem('loginId', userData.loginId);
+      sessionStorage.setItem('userId', userData.userId); // 실제 DB의 PK
+      sessionStorage.setItem('nickname', userData.nickname);
 
       // 로그인 성공 후 'minihome' 경로로 페이지를 이동시킵니다.
-      router.push('/minihome')
+      router.push(`/minihome/${userData.loginId}`)
     } else {
       // 200 OK가 아닌 다른 성공 응답(예: 204 No Content)이 올 경우 처리.
       alert('로그인 실패: 서버 응답 오류')
