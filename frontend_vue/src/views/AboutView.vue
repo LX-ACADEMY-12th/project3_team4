@@ -19,7 +19,7 @@
 
       <div class="button-row">
         <input type="button" value="로그인" @click="handleLogin" class="login-btn">
-        <input type="button" value="회원가입" @click="$router.push('/')" class="signup-btn">
+        <input type="button" value="회원가입" @click="$router.push('/signup')" class="signup-btn">
       </div>
     </div>
   </div>
@@ -48,11 +48,17 @@ async function handleLogin() {
     await axios.post('http://localhost:8080/api/login', {
       loginId: loginData.value.loginId,
       loginPw: loginData.value.loginPw
+      
     })
 
     alert('로그인 성공')
-    localStorage.setItem('loginId', loginData.value.loginId)
-    router.push('/')
+    localStorage.setItem('loginId', loginData.value.loginId) // localStorgae.setItem 형식으로 함
+    // 따라서 미니홈뷰에서 이걸 가지고 써야한다.
+    // 로그인 찍히는지 확인
+    console.log(loginData.value.loginId)
+    console.log(loginData.value.loginPw)
+    
+    router.push('/minihome')
 
   } catch (error) {
     console.error('로그인 에러' + error)

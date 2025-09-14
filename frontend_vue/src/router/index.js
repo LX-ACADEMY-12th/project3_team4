@@ -1,13 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import MiniHomeView from '../views/MiniHomeView.vue'
+import AboutView from '../views/AboutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'login',
+      component: AboutView,
+    },
+    {
+      path: '/minihome',
       name: 'minihome',
-      component: MiniHomeView,
+      component: () => import('../views/MiniHomeView.vue'),
     },
     {
       path: '/about',
@@ -24,11 +29,7 @@ const router = createRouter({
       name: 'signup',
       component: () => import('../views/HomeView.vue'),
     },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('../views/AboutView.vue'),
-    },
+    
   ],
 })
 

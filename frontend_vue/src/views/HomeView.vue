@@ -76,7 +76,7 @@ const signup = async () => {
     // 응답 처리
     if (response.data === 'success') {
       alert('회원가입이 완료되었습니다!')
-      router.push('/login') // 로그인 페이지로 이동
+      router.push('/') // 로그인 페이지로 이동
     } else if (response.data === 'fail') {
       alert('회원가입에 실패했습니다. 다시 시도해주세요.')
     } else {

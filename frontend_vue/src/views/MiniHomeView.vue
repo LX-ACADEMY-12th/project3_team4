@@ -166,6 +166,20 @@
                 <span class="small">{{ userInfo.nickname || '나' }}</span>
               </div>
             </div>
+
+            <div>
+                <select class="form-select form-select-sm">
+                  <option value="">파도타기</option>
+                  <option value="">{{userInfo.nickname}}</option>
+                  <option value="😢 슬픔">😢 슬픔</option>
+                  <option value="😡 화남">😡 화남</option>
+                  <option value="😴 피곤">😴 피곤</option>
+                  <option value="😍 설렘">😍 설렘</option>
+                  <option value="🤔 고민중">🤔 고민중</option>
+                  <option value="😪 휴식중">😪 휴식중</option>
+                </select>
+            </div>
+
           </div>
 
           <!-- 오른쪽 -->
@@ -235,6 +249,8 @@
           </div>
         </div>
       </div>
+      </div>
+      </div>
 </template>
 
 
@@ -269,7 +285,8 @@ export default {
       // 수정 전 원본 데이터 백업 (취소 기능을 위해)
       originalUserInfo: {},
       visitCount: { todayCount: 0, totalCount: 0 },
-      loginUserPk: 3, // 임시: 실제 로그인 후 userId로 교체
+      // 백엔드에선 int로 받아야하는데 얘는 지금 문자열인가봄
+      loginUserPk: Number(localStorage.getItem('loginId')), // 임시: 실제 로그인 후 userId로 교체
       friendsList: [],
       guestbookList: [],
       photosList: [],
@@ -279,6 +296,7 @@ export default {
   mounted() {
     // 최초 렌더링 시 서버에서 화면용 DTO 받기
     this.fetchMinihome(this.loginUserPk)
+    this.getSessionUser()
   },
   methods: {
     // 미니홈피 화면 데이터 조회
@@ -306,6 +324,7 @@ export default {
         this.visitCount = data.visitCount
           ? data.visitCount
           : { todayCount: data.todayCount || 0, totalCount: data.totalCount || 0 }
+
       } catch (error) {
         console.error('미니홈피 정보를 가져오는데 실패했습니다.', error)
         this.showMessage('미니홈피 정보를 불러오는데 실패했습니다.', 'error')
@@ -321,6 +340,17 @@ export default {
         // 수정 버튼 클릭 시 - 원본 데이터 백업
         this.originalUserInfo = { ...this.userInfo }
         this.isEditing = true
+      }
+    },
+
+    async getSessionUser() {
+      try {
+        const res = await axios.get('/api/login');
+        console.log("세션값 : " , res.data);
+        return res.data;
+      } catch (err) {
+        console.log('세션조회에러' ,err)
+        return null;
       }
     },
 
