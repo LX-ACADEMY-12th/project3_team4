@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <ul class="pagination pagination-circle pagination-outline">
     <!-- 처음 -->
@@ -103,7 +104,7 @@ const props = defineProps({
 
 const isFirst = computed(() => props.pagination.page === 1)
 const isLast  = computed(() => props.pagination.page >= props.pagination.pageCount)
-const { requestFunc, pagination } = props
+// const { requestFunc, pagination } = props
 </script>
 
 <style scoped>

@@ -25,7 +25,7 @@
             <div class="profile-placeholder"></div>
           </div>
           <div class="message-section">
-            <p class="message-text">{{ data.guestBookContent }}</p>
+            <p class="message-text">{{ data.guestbookContent }}</p>
           </div>
         </div>
       </div>
@@ -33,6 +33,11 @@
       <!-- 데이터가 없을 때 -->
       <div v-if="guestbooks.length === 0" class="empty-state">
         방명록이 없습니다.
+      </div>
+
+      <!-- 페이지네이션 -->
+      <div v-if="pagination1.total > 0" class="pagination-wrapper"> <!-- totalCount => total 수정 -->
+        <Pagination :pagination="pagination1" :requestFunc="(page, perPage) => requestGuestBookList(page, perPage)" />
       </div>
     </div>
 
@@ -50,10 +55,7 @@
       </div>
     </div>
 
-    <!-- 페이지네이션 -->
-    <div v-if="pagination1.totalCount > 0" class="pagination-wrapper">
-      <Pagination :pagination="pagination1" :requestFunc="(page, perPage) => requestGuestBookList(page, perPage)" />
-    </div>
+    
 
     <!-- 에러 메시지 -->
     <div v-if="errorMessage" class="error-message">
@@ -80,7 +82,7 @@ const perPage = ref(2)
 const pagination1 = ref(makePagination({
   page: 1,
   perPage: 2,
-  totalCount: 0
+  total: 0 // totalCount => total 수정
 }))
 
 // 로딩 상태
@@ -125,7 +127,7 @@ watch(
     // ID가 실제로 변경되었을 때만 데이터를 다시 불러옵니다.
     if (newId !== oldId) {
       console.log(`방명록 ID 변경 감지: ${oldId} -> ${newId}`);
-      requestGuestBookList(newId, 1, perPage.value);
+      requestGuestBookList(1, perPage.value);
     }
   },
   { immediate: true } // 💡 컴포넌트가 처음 마운트될 때 즉시 실행합니다.
@@ -134,7 +136,7 @@ watch(
 /**
  * 방명록 목록 조회
  */
-async function requestGuestBookList(miniHomeOwnerId, page = 1, itemsPerPage = perPage.value) {
+async function requestGuestBookList(page = 1, itemsPerPage = perPage.value) {
   if (isLoading.value) return
 
   isLoading.value = true
@@ -454,7 +456,10 @@ function formatDate(dateString) {
 .pagination-wrapper {
   display: flex;
   justify-content: center;
+   margin-top: auto;
   flex-shrink: 0;
+  transform: scale(0.7);       /* 전체 크기를 80%로 축소 */
+  transform-origin: center;    /* 가운데 기준으로 줄이기 */
 }
 
 .error-message {
@@ -484,4 +489,5 @@ function formatDate(dateString) {
 .error-close:hover {
   color: #000;
 }
+
 </style>
