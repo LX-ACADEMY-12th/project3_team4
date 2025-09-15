@@ -93,8 +93,8 @@ public class MiniHomeService {
         MiniHomeDto existingMiniHome = miniHomeMapper.getMiniHomeByUserId(requestDto.getMiniHomeOwnerLoginId());
         
         if (existingMiniHome == null) {
-            miniHomeUpdateDto.setCreatedAt(LocalDateTime.now());
-            miniHomeMapper.insertMiniHome(miniHomeUpdateDto);
+//        	existingMiniHome.setCreatedAt(LocalDateTime.now());
+//            miniHomeMapper.insertMiniHome(existingMiniHome);
         } else {
             miniHomeMapper.updateMiniHome(miniHomeUpdateDto);
             miniHomeMapper.updateBgm(miniHomeUpdateDto);

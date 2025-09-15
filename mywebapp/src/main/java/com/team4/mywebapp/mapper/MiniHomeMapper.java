@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.team4.mywebapp.dto.MiniHomeDto;
+import com.team4.mywebapp.dto.MiniHomeInsertDto;
 import com.team4.mywebapp.dto.MiniHomeUpdateDto;
 
 @Mapper //MyBatis 매퍼 인터페이스임을 나타냄.
@@ -15,9 +16,9 @@ public interface MiniHomeMapper {
 	
     /**
      * 새로운 미니홈피 정보를 DB에 삽입합니다.
-     * @param miniHomeUpdateDto 삽입할 미니홈피 정보 DTO
+     * @param miniHomeDto 삽입할 미니홈피 정보 DTO
      */
-    void insertMiniHome(MiniHomeUpdateDto miniHomeUpdateDto);
+    void insertMiniHome(MiniHomeInsertDto miniHomeInsertDto);
 
     /**
      * 기존 미니홈피 정보를 업데이트합니다.
@@ -25,5 +26,6 @@ public interface MiniHomeMapper {
      */
     void updateMiniHome(MiniHomeUpdateDto miniHomeUpdateDto);
 	void updateBgm(MiniHomeUpdateDto miniHomeUpdateDto);
+
 
 }

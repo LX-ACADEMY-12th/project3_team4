@@ -37,25 +37,18 @@
 		WHERE u.login_id = #{userId};
 	</select>
 	
-	<insert id="insertMiniHome" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
-        INSERT INTO minihome (
-            today_mood,
-            status_message,
-            youtube_video_id,
-            background_color,
-            applied_theme_id,
-            created_at,
-            updated_at
-        ) VALUES (
-            #{todayMood},
-            #{statusMessage},
-            #{youtubeVideoId},
-            #{backgroundColor},
-            #{appliedThemeId},
-            #{createdAt},
-            #{updatedAt}
-        )
-    </insert>
+	<insert id="insertMiniHome" parameterType="com.team4.mywebapp.dto.MiniHomeInsertDto">
+	    INSERT into minihome (
+	        minihome_owner_id,
+	        created_at,
+	        theme_theme_id
+	    )
+	    VALUES (
+	        #{userId},
+	        NOW(),
+	        1
+	    )
+	</insert>
 
 	<update id="updateMiniHome" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
 	    UPDATE minihome

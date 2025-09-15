@@ -1,5 +1,6 @@
 package com.team4.mywebapp.dto;
 
+
 public class MiniHomeDto {
 	
 	private int userId;
@@ -9,6 +10,7 @@ public class MiniHomeDto {
 	private String statusMessage;
 	private String youtubeVideoId;
 	private String backgroundColor;
+
 	// 방문자 통계 DTO	
 	private VisitCountDto visitCount;
 	
@@ -60,4 +62,5 @@ public class MiniHomeDto {
 	public void setBackgroundColor(String backgroundColor) {
 		this.backgroundColor = backgroundColor;
 	}
+
 }
