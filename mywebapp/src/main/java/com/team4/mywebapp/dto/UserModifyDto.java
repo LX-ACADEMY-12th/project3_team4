@@ -14,6 +14,8 @@ public class UserModifyDto {
 	private String todayMood;
 	private int minihomeId;
 	private int userId;
+	private int themeThemeId;
+	private String backgroundColorId;
 	
 	public String getProfilePhotoPath() {
 		return profilePhotoPath;
@@ -69,8 +71,19 @@ public class UserModifyDto {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
-	
-	
+	public int getThemeThemeId() {
+		return themeThemeId;
+	}
+	public void setThemeThemeId(int themeThemeId) {
+		this.themeThemeId = themeThemeId;
+	}
+	public String getBackgroundColorId() {
+		return backgroundColorId;
+	}
+	public void setBackgroundColorId(String backgroundColorId) {
+		this.backgroundColorId = backgroundColorId;
+	}
+
 	
 	
 	

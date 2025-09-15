@@ -2,36 +2,41 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.team4.mywebapp.mapper.UserModifyMapper">
 
-	<select id="getUserProfile" parameterType="int" resultType="UserModifyDto">
+	<select id="getUserProfile" parameterType="int" resultType="com.team4.mywebapp.dto.UserModifyDto">
 	    SELECT 
 	        u.user_id as userId,
 	        u.profile_photo_path as profilePhotoPath,
 	        u.birth_date as birthDate,
-	        u.gender,
-	        u.region,
-	        u.hobby,
+	        u.gender as gender,
+	        u.region as region,
+	        u.hobby as hobby,
 	        u.status_message as statusMessage,
 	        u.today_mood as todayMood,
-	        m.background_color as backgroundColor,
-	        t.theme_id as themeId
+	        m.background_color_id as backgroundColorId,
+	        t.theme_id as themeThemeId,
+	        m.minihome_id as minihomeId 
 	    FROM minihome m
-	    LEFT JOIN user u ON m.user_id = u.user_id
-	    LEFT JOIN theme t ON m.theme_id = t.theme_id
+	    LEFT JOIN user u ON m.minihome_owner_id = u.user_id
+	    LEFT JOIN theme t ON m.theme_theme_id = t.theme_id
 	    WHERE m.minihome_id = #{minihomeId}
 	</select>
 	
-	<update id="updateUser" parameterType="UserModifyDto">
-	    UPDATE user SET
-	        profile_photo_path = #{profilePhotoPath},
-	        birth_date = #{birthDate},
-	        gender = #{gender},
-	        region = #{region},
-	        hobby = #{hobby},
-	        status_message = #{statusMessage},
-	        today_mood = #{todayMood}
-	    WHERE user_id = (
-	        SELECT user_id FROM minihome WHERE minihome_id = #{minihomeId}
-	    )
+	<update id="updateUser" parameterType="com.team4.mywebapp.dto.UserModifyDto">
+	    UPDATE user u
+	    JOIN minihome m ON u.user_id = m.minihome_owner_id
+	    SET 
+	        u.profile_photo_path = #{profilePhotoPath},
+	        u.birth_date = #{birthDate},
+	        u.gender = #{gender},
+	        u.region = #{region},
+	        u.hobby = #{hobby},
+	        u.status_message = #{statusMessage},
+	        u.today_mood = #{todayMood},
+	        m.background_color_id = #{backgroundColorId},
+	        m.theme_theme_id = #{themeThemeId}
+	    WHERE m.minihome_id = #{minihomeId}
 	</update>
+	
+	
 
 </mapper>

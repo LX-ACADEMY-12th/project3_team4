@@ -48,7 +48,8 @@ public class UserModifyController {
 			return ResponseEntity.ok("success");
 		} else {
 			return ResponseEntity.status(500).body("fail");	
-	}
+		}
+		
  }
 	/**
      * 파일 업로드 전용 API
@@ -63,7 +64,7 @@ public class UserModifyController {
     ) {
         try {// 예외 처리 시작
             // 1. 파일을 서버에 저장하고 저장 경로를 받음
-            String savedPath = saveProfileImage(profileImageFile);
+            String savedPath = saveProfileImage(profileImageFile, String.valueOf(minihomeId));
             
             // 2. DB 업데이트를 위한 DTO 객체 생성
             UserModifyDto dto = new UserModifyDto();
@@ -85,22 +86,22 @@ public class UserModifyController {
             return ResponseEntity.status(500).body("fail");
         }
     }
-
-    // 실제 파일을 서버에 저장하는 private 메소드
-    private String saveProfileImage(MultipartFile file) {
+ // 실제 파일을 서버에 저장하는 private 메소드
+    private String saveProfileImage(MultipartFile file, String string) {
         try {
-            String uploadDir = "uploads/profile/";
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            String uploadDir = "src/main/resources/static/assets/images/";
+            String fileName = String.valueOf(string) + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
             String filePath = uploadDir + fileName;
-            
-            new File(uploadDir).mkdirs();  // 폴더 생성 (이미 있으면 무시)
-            file.transferTo(new File(filePath));  // 파일 저장
-            
-            return filePath;
-            
+
+            new File(uploadDir).mkdirs();
+            file.transferTo(new File(filePath));
+
+            return "/assets/images/" + fileName;
+
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 실패", e);
         }
     }
+    
 	
 }
