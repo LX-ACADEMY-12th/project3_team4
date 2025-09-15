@@ -198,15 +198,18 @@ async function goToInsert() {
 
   const payload = {
     guestbookContent: newContent.value.trim(),
-    guestbookMinihomeId: 1,
-    guestbookWriterId: parseInt(loginUserPk)
+    miniHomeOwnerLoginId: props.miniHomeOwnerLoginId, // 임시로 넣은 데이터니까 바꿔줘야함 -> 라우터에서 현재 내가 보고있는 페이지에서의 주인id를 가져옴
+    guestbookWriterId: parseInt(loginUserPk) // 이건 로그인 유저 값
   }
+
+  console.log("payload to send:", payload)
+
 
   try {
     await axios.post('http://localhost:8080/api/guestbook-insert', payload)
     newContent.value = ""
     await requestGuestBookList(1, perPage.value)
-
+    alert(`방명록 추가 성공!`)
   } catch (error) {
     console.error('방명록 작성 오류:', error)
     errorMessage.value = '방명록 작성에 실패했습니다.'
@@ -269,6 +272,7 @@ function formatDate(dateString) {
       minute: '2-digit'
     })
   } catch (error) {
+    console.error('방명록 날짜 포맷팅 오류:', error)
     return dateString
   }
 }

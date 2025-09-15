@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.team4.mywebapp.dto.FriendDto;
+import com.team4.mywebapp.dto.UserDto;
 import com.team4.mywebapp.service.FriendService;
 
 @RestController
@@ -22,8 +23,8 @@ public class FriendController {
 	private FriendService friendService;
 	
 	@GetMapping("/show-users")
-	public ResponseEntity<List<FriendDto>> list(@RequestParam String loginId){
-		List<FriendDto> list = friendService.getAllUsers(loginId);
+	public ResponseEntity<List<UserDto>> list(@RequestParam String loginId){
+		List<UserDto> list = friendService.getAllUsers();
 		return ResponseEntity.ok(list);
 	}
 }

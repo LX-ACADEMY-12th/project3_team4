@@ -6,11 +6,14 @@ public class GuestBookDto {
 
 	private Long guestBookId;
 	private String nickname;
-	private String guestBookContent;
+	private String guestbookContent;
 	private LocalDateTime writtenAt; // 작성일시
 	private int guestBookMiniHomeId;
-	private int guestBookWriterId;
+	private int guestbookWriterId;
 	private String profilePhotoPath;
+	
+	//추가한거임
+	private String miniHomeOwnerLoginId;
 	
 	public String getProfilePhotoPath() {
 		return profilePhotoPath;
@@ -32,11 +35,11 @@ public class GuestBookDto {
 		this.nickname = nickname;
 	}
 	
-	public String getGuestBookContent() {
-		return guestBookContent;
+	public String getGuestbookContent() {
+		return guestbookContent;
 	}
-	public void setGuestBookContent(String guestBookContent) {
-		this.guestBookContent = guestBookContent;
+	public void setGuestbookContent(String guestbookContent) {
+		this.guestbookContent = guestbookContent;
 	}
 	public LocalDateTime getWrittenAt() {
 		return writtenAt;
@@ -51,11 +54,19 @@ public class GuestBookDto {
 		this.guestBookMiniHomeId = guestBookMiniHomeId;
 	}
 	
-	public int getGuestBookWriterId() {
-		return guestBookWriterId;
+	public int getGuestbookWriterId() {
+		return guestbookWriterId;
 	}
-	public void setGuestBookWriterId(int guestBookWriterId) {
-		this.guestBookWriterId = guestBookWriterId;
+	public void setGuestbookWriterId(int guestbookWriterId) {
+		this.guestbookWriterId = guestbookWriterId;
 	}
+	public String getMiniHomeOwnerLoginId() {
+		return miniHomeOwnerLoginId;
+	}
+	public void setMiniHomeOwnerLoginId(String miniHomeOwnerLoginId) {
+		this.miniHomeOwnerLoginId = miniHomeOwnerLoginId;
+	}
+	
+	
 	
 }

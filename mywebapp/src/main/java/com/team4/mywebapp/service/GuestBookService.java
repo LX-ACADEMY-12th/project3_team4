@@ -2,6 +2,8 @@ package com.team4.mywebapp.service;
 
 import com.team4.mywebapp.dto.GuestBookDto;
 import com.team4.mywebapp.mapper.GuestBookMapper;
+import com.team4.mywebapp.mapper.MiniHomeMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -35,10 +37,22 @@ public class GuestBookService {
 	/**
 	 * 방명록을 추가합니다.
 	 * 
+	 * loginId(String)을 int인 minihomeId로 불러올거
 	 * @param guestbookDto 추가할 방명록 정보
 	 * @return 추가 성공 시 true, 실패 시 false
 	 */
 	public boolean insertGuestbook(GuestBookDto guestbookDto) {
+		int minihomeId = guestbookMapper.findMinihomeIdByLoginId(guestbookDto.getMiniHomeOwnerLoginId());
+		
+		guestbookDto.setGuestBookMiniHomeId(minihomeId);
+		
+		System.out.println(minihomeId);
+		System.out.println("content = " + guestbookDto.getGuestbookContent());
+		System.out.println("ownerLoginId = " + guestbookDto.getMiniHomeOwnerLoginId());
+		System.out.println("writerId = " + guestbookDto.getGuestbookWriterId());
+
+		
 		return guestbookMapper.insertGuestbook(guestbookDto) > 0;
 	}
+	
 }

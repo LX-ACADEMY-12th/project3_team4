@@ -31,10 +31,10 @@
 	    guestbook_writer_id
 	  )
 	  VALUES (
-	    #{guestBookContent},
+	    #{guestbookContent},
 	    NOW(),
 	    #{guestBookMiniHomeId},
-	    #{guestBookWriterId}
+	    #{guestbookWriterId}
 	  )
 	</insert>
 
@@ -47,6 +47,14 @@
     	WHERE 
     		guestbook_id = #{guestBookId}
     </delete>
+    
+    <!-- 닉네임을 로그인 아이디로.. -->
+    <select id="findMinihomeIdByLoginId" parameterType="string" resultType="int">
+	  SELECT m.minihome_id
+	  FROM minihome m
+	  JOIN `user` u ON m.minihome_owner_id = u.user_id
+	  WHERE u.login_id = #{loginId}
+	</select>
     
 
 </mapper>

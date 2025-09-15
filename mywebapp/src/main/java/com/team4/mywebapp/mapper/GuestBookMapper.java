@@ -16,4 +16,7 @@ public interface GuestBookMapper {
 
     // 방명록 추가
     int insertGuestbook(GuestBookDto guestbook);
+    
+    // loginId(String) -> minihome_id 리턴하는
+    Integer findMinihomeIdByLoginId(@Param("loginId") String loginId);
 }
