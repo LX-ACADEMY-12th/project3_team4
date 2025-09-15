@@ -13,11 +13,17 @@ public interface UserModifyMapper {
      */
 	UserModifyDto getUserProfile(@Param("minihomeId") int minihomeId);
 
-	// 사용자 정보 업데이트
-	// param: 수정할 사용자 정보 Dto
-	// return: 업데이트 된 행의 개수
+	/**
+     * 사용자 정보 업데이트
+     * @param  수정할 사용자 정보 Dto
+     * @return 업데이트 된 행의 개수
+     */
 	int updateUser(UserModifyDto userModityDto);
 	
+
+	 // loginId로 조회
+	 UserModifyDto getUserProfileInLoginId(String loginId);
+	   
 	/**
      *
      * @param  

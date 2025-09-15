@@ -12,6 +12,7 @@
 	        u.hobby as hobby,
 	        u.status_message as statusMessage,
 	        u.today_mood as todayMood,
+	        u.nickname as nickname,
 	        m.background_color_id as backgroundColorId,
 	        t.theme_id as themeThemeId,
 	        m.minihome_id as minihomeId 
@@ -33,10 +34,32 @@
 	        u.hobby = #{hobby},
 	        u.status_message = #{statusMessage},
 	        u.today_mood = #{todayMood},
+	        u.nickname = #{nickname},
 	        m.background_color_id = #{backgroundColorId},
 	        m.theme_theme_id = #{themeThemeId}
 	    WHERE m.minihome_id = #{minihomeId}
 	</update>
+	
+	 <!-- loginId로 조회(쿼리작동 확인 완료) -->
+   <select id="getUserProfileInLoginId" parameterType="int" resultType="com.team4.mywebapp.dto.UserModifyDto">
+       SELECT 
+           u.user_id as userId,
+           u.profile_photo_path as profilePhotoPath,
+           u.birth_date as birthDate,
+           u.gender as gender,
+           u.region as region,
+           u.hobby as hobby,
+           u.status_message as statusMessage,
+           u.today_mood as todayMood,
+           u.nickname as nickname,
+           m.background_color_id as backgroundColorId,
+           t.theme_id as themeThemeId,
+           m.minihome_id as minihomeId
+       FROM minihome m
+       LEFT JOIN user u ON m.minihome_owner_id = u.user_id
+       LEFT JOIN theme t ON m.theme_theme_id = t.theme_id
+       WHERE u.login_id = #{loginId}
+   </select>
 	 
 	
 	<update id="updateUserProfilePhoto" parameterType="com.team4.mywebapp.dto.UserModifyDto">

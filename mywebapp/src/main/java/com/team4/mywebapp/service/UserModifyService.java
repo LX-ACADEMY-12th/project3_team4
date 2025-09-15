@@ -32,6 +32,15 @@ public class UserModifyService {
 		
 	}
 	
+	 /**
+     * loginId로 사용자 정보 조회
+     * @param  loginId
+     * @return 사용자 정보 Dto
+     */
+   public UserModifyDto getUserProfileInLoginId(String loginId) {
+      return usermodifyMapper.getUserProfileInLoginId(loginId);
+   }
+	
 	/**
      * 
      * @param 

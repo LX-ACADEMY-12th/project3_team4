@@ -2,10 +2,13 @@ package com.team4.mywebapp.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class UserModifyDto {
 	
 	
 	private String profilePhotoPath;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date birthDate;
 	private String gender;
 	private String region;
@@ -16,7 +19,7 @@ public class UserModifyDto {
 	private int userId;
 	private int themeThemeId;
 	private String backgroundColorId;
-	
+	private String nickname;
 	public String getProfilePhotoPath() {
 		return profilePhotoPath;
 	}
@@ -83,7 +86,14 @@ public class UserModifyDto {
 	public void setBackgroundColorId(String backgroundColorId) {
 		this.backgroundColorId = backgroundColorId;
 	}
-
+	public String getNickname() {
+		return nickname;
+	}
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+	
+	
 	
 	
 	

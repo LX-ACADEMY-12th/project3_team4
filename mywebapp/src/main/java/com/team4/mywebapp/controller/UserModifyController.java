@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,14 +52,43 @@ public class UserModifyController {
 		}
 		
  }
+	
+	// 새로 추가: 미니홈피 정보 조회용 API
+    /**
+     * HTTP Get 요청을 받아 loginId를 파라미터로 연결해 주는 과정을 수행하는 API입니다.
+     * 
+     * @param 로그인한 사용자의 loginId
+     * @return 성공 시 200 OK, 실패 시 404 body
+     */
+    @GetMapping("/minihome/{loginId}")  // RESTful 방식: URL 경로에 ID 포함
+    public ResponseEntity<?> getMinihomeInfo(@PathVariable String loginId) {
+        try {
+            // 로그인 ID로 사용자의 미니홈피 정보를 조회
+            System.out.println("미니홈피 정보 요청받은 loginId : " + loginId);
+            
+            // 서비스 계층에서 미니홈피 정보를 가져오는 메서드 호출
+            UserModifyDto minihomeInfo = usermodifyService.getUserProfileInLoginId(loginId);
+            
+            if (minihomeInfo != null) {
+                // 미니홈피 정보가 존재하는 경우
+                return ResponseEntity.ok(minihomeInfo);
+            } else {
+                // 미니홈피 정보가 없는 경우
+                return ResponseEntity.status(404).body("해당 사용자의 미니홈피를 찾을 수 없습니다.");
+            }
+            
+        } catch (Exception e) {
+            // 서버 오류 발생 시
+            System.err.println("미니홈피 정보 조회 중 오류 발생: " + e.getMessage());
+            return ResponseEntity.status(500).body("서버 오류가 발생했습니다.");
+        }
+    }
+   
 	/**
      * 파일 업로드 전용 API
      * @param 
      * @return 
      */
-	
-		
-	// 파일 업로드 전용 API
     @PostMapping("/user-profile-image")
     public ResponseEntity<String> updateProfileImage(@RequestParam("minihomeId") int minihomeId, @RequestParam("profileImageFile") MultipartFile profileImageFile
     ) {
