@@ -6,13 +6,17 @@
 	<!-- 로그인한 사용자 미니홈피 정보 조회 -->
 	<resultMap id="UserInfoDtoResultMap" type="MiniHomeDto">
 		<result column="user_id" property="userId" />
-		<result column="nickname" property="nickname" />
-		<result column="profile_photo_path" property="profileImagePath" />
-		<result column="status_message" property="statusMessage" />
-		<result column="youtube_url" property="youtubeVideoId" />
-		<result column="background_color_id" property="backgroundColor" />
-		<association property="visitCount"
-			resultMap="VisitCountDtoResultMap" />
+	    <result column="nickname" property="nickname" />
+	    <result column="profile_photo_path" property="profileImagePath" />
+	    <result column="status_message" property="statusMessage" />
+	    <result column="today_mood" property="todayMood" />
+	    <result column="birth_date" property="birthDate" />     
+	    <result column="gender" property="gender" />             
+	    <result column="region" property="region" />             
+	    <result column="hobby" property="hobby" />              
+	    <result column="youtube_url" property="youtubeVideoId" />
+	    <result column="background_color_id" property="backgroundColor" />
+	    <association property="visitCount" resultMap="VisitCountDtoResultMap" />
 	</resultMap>
 
 	<resultMap id="VisitCountDtoResultMap" type="VisitCountDto">
@@ -22,40 +26,38 @@
 	
 	<select id="getMiniHomeByUserId" resultMap="UserInfoDtoResultMap">
 		SELECT
-			u.user_id,
-			u.nickname,
-			u.profile_photo_path, 
-			u.status_message,
-			b.youtube_url,
-			mh.background_color_id,
-			(SELECT COUNT(*) FROM visit_log WHERE DATE(visited_at) = CURDATE() AND minihome_minihome_id = mh.minihome_id) AS today_count,
-			(SELECT SUM(daily_visitors) FROM visit_stats WHERE target_minihome_id = mh.minihome_id) AS total_count
+		    u.user_id,
+		    u.nickname,
+		    u.profile_photo_path,
+		    u.status_message,
+		    u.today_mood,
+		    u.birth_date,        -- 추가
+		    u.gender,            -- 추가  
+		    u.region,            -- 추가
+		    u.hobby,             -- 추가
+		    b.youtube_url,
+		    mh.background_color_id,
+		    (SELECT COUNT(*) FROM visit_log WHERE DATE(visited_at) = CURDATE() AND minihome_minihome_id = mh.minihome_id) AS today_count,
+		    (SELECT SUM(daily_visitors) FROM visit_stats WHERE target_minihome_id = mh.minihome_id) AS total_count
 		FROM
-			user AS u
-			LEFT JOIN minihome AS mh ON u.user_id = mh.minihome_owner_id
-			LEFT JOIN bgm AS b ON mh.minihome_id = b.minihome_minihome_id
+		    user AS u
+		LEFT JOIN minihome AS mh ON u.user_id = mh.minihome_owner_id
+		LEFT JOIN bgm AS b ON mh.minihome_id = b.minihome_minihome_id
 		WHERE u.login_id = #{userId};
 	</select>
 	
-	<insert id="insertMiniHome" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
-        INSERT INTO minihome (
-            today_mood,
-            status_message,
-            youtube_video_id,
-            background_color,
-            applied_theme_id,
-            created_at,
-            updated_at
-        ) VALUES (
-            #{todayMood},
-            #{statusMessage},
-            #{youtubeVideoId},
-            #{backgroundColor},
-            #{appliedThemeId},
-            #{createdAt},
-            #{updatedAt}
-        )
-    </insert>
+	<insert id="insertMiniHome" parameterType="com.team4.mywebapp.dto.MiniHomeInsertDto">
+	    INSERT into minihome (
+	        minihome_owner_id,
+	        created_at,
+	        theme_theme_id
+	    )
+	    VALUES (
+	        #{userId},
+	        NOW(),
+	        1
+	    )
+	</insert>
 
 	<update id="updateMiniHome" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
 	    UPDATE minihome
@@ -67,20 +69,19 @@
 	        minihome_owner_id = (SELECT user_id FROM user WHERE login_id = #{miniHomeOwnerLoginId});
 	</update>
 	
-    <update id="updateBgm" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
-        UPDATE bgm
-        SET
-            youtube_url = #{youtubeVideoId}
-        WHERE
-            minihome_minihome_id = (
-                SELECT 
-                	minihome_id
-                FROM 
-                	minihome
-                WHERE 
-                	minihome_owner_id = (SELECT user_id FROM user WHERE login_id = #{miniHomeOwnerLoginId})
-            )
-    </update>
-	
+	<update id="updateBgm" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
+	    INSERT 
+	    	INTO bgm (youtube_url, minihome_minihome_id)
+	    SELECT 
+	    	#{youtubeVideoId}, minihome_id
+	    FROM 
+	    	minihome
+	    WHERE 
+	    	minihome_owner_id = (
+	        SELECT user_id FROM user WHERE login_id = #{miniHomeOwnerLoginId}
+	    	)
+	    	ON DUPLICATE KEY UPDATE youtube_url = #{youtubeVideoId}
+	</update>
+		
 
 </mapper>

@@ -11,7 +11,7 @@
 		    gb.guestbook_minihome_id AS guestBookMiniHomeId,
 		    gb.guestbook_writer_id AS guestBookWriterId,
 		    writer.nickname AS nickname,
-		    writer.profile_photo_path AS profielPhotoPath
+		    writer.profile_photo_path AS profilePhotoPath
 		FROM 
 		    guestbook AS gb 
 		    INNER JOIN user AS owner ON owner.user_id = gb.guestbook_minihome_id  -- 미니홈피 주인

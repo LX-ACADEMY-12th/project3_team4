@@ -1,6 +1,7 @@
 package com.team4.mywebapp.dto;
 
 public class SignupDto {
+	private int userId; // 추가: 자동 생성된 user_id를 저장할 필드
     private String loginId;
     private String nickname;
     private String loginPw;
@@ -22,5 +23,11 @@ public class SignupDto {
 	}
 	public void setLoginPw(String loginPw) {
 		this.loginPw = loginPw;
+	}
+	public int getUserId() {
+		return userId;
+	}
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 }
