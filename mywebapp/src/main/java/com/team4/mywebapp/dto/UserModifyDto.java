@@ -20,6 +20,7 @@ public class UserModifyDto {
 	private int themeThemeId;
 	private String backgroundColorId;
 	private String nickname;
+	
 	public String getProfilePhotoPath() {
 		return profilePhotoPath;
 	}
