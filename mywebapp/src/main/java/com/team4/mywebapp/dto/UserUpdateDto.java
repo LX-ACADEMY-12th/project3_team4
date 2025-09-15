@@ -3,13 +3,13 @@ package com.team4.mywebapp.dto;
 
 public class UserUpdateDto {
     private Long userId;
+    private String profilePhotoPath; // 추가
     private String todayMood;
     private String statusMessage;
     private String birthDate;
     private String gender;
     private String region;
     private String hobby;
-    private String profileImageFile;
 
     // 1. 빌더 객체를 생성하는 public static 메서드
     public static Builder builder() {
@@ -25,7 +25,7 @@ public class UserUpdateDto {
         this.gender = builder.gender;
         this.region = builder.region;
         this.hobby = builder.hobby;
-        this.profileImageFile = builder.profileImageFile;
+        this.profilePhotoPath = builder.profilePhotoPath;
     }
 
     // 3. Getter와 Setter
@@ -85,15 +85,15 @@ public class UserUpdateDto {
         this.hobby = hobby;
     }
 
-    public String getProfileImageFile() {
-        return profileImageFile;
-    }
+    public String getProfilePhotoPath() {
+		return profilePhotoPath;
+	}
 
-    public void setProfileImageFile(String profileImageFile) {
-        this.profileImageFile = profileImageFile;
-    }
+	public void setProfilePhotoPath(String profilePhotoPath) {
+		this.profilePhotoPath = profilePhotoPath;
+	}
 
-    // 4. static 내부 클래스로 Builder 구현
+	// 4. static 내부 클래스로 Builder 구현
     public static class Builder {
         private Long userId;
         private String todayMood;
@@ -102,7 +102,7 @@ public class UserUpdateDto {
         private String gender;
         private String region;
         private String hobby;
-        private String profileImageFile;
+        private String profilePhotoPath;
 
         private Builder() {}
 
@@ -141,8 +141,8 @@ public class UserUpdateDto {
             return this;
         }
 
-        public Builder profileImageFile(String multipartFile) {
-            this.profileImageFile = multipartFile;
+        public Builder profilePhotoPath(String multipartFile) {
+            this.profilePhotoPath = multipartFile;
             return this;
         }
 

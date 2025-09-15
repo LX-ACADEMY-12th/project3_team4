@@ -454,11 +454,18 @@ export default {
           params: { miniHomeOwnerLoginId },
         });
 
+        // 서버에서 받은 데이터 확인
+        console.log('서버 응답 데이터:', data);
+        console.log('profileImagePath:', data.profileImagePath);
+
         // 받아온 데이터로 userInfo 객체 업데이트
         this.userInfo = {
           userId: data.userId,
           nickname: data.nickname,
-          profileImage: data.profileImage,
+          // profileImagePath가 null이 아닌지 확인 후 URL 생성
+          profileImage: data.profileImagePath
+            ? `http://localhost:8080${data.profileImagePath}`
+            : null,
           todayMood: data.todayMood,
           statusMessage: data.statusMessage,
           birthDate: data.birthDate,
@@ -469,6 +476,9 @@ export default {
           backgroundColor: data.backgroundColor || '#f8f9fa',
           theme: data.appliedThemeId || null,
         };
+
+        // 최종 이미지 URL 확인
+        console.log('최종 프로필 이미지 URL:', this.userInfo.profileImage);
 
         // 방문자 통계 정보 설정
         this.visitCount = data.visitCount
@@ -566,7 +576,7 @@ export default {
 
           // 서버에서 반환된 새로운 프로필 이미지 URL이 있으면 업데이트
           if (response.data.profileImageUrl) {
-            this.userInfo.profileImage = response.data.profileImageUrl;
+            this.userInfo.profileImage = 'http://localhost:8080' + response.data.profileImageUrl;
           }
 
           // 임시 데이터 초기화

@@ -22,7 +22,9 @@
         <!-- 방명록 내용 -->
         <div class="guestbook-content">
           <div class="profile-section">
-            <div class="profile-placeholder"></div>
+            <img v-if="data.profilePhotoPath" :src="`http://localhost:8080${data.profilePhotoPath}`" class="profile-img"
+              alt="프로필" />
+            <div v-else class="profile-placeholder"></div>
           </div>
           <div class="message-section">
             <p class="message-text">{{ data.guestBookContent }}</p>
@@ -488,5 +490,12 @@ function formatDate(dateString) {
 
 .error-close:hover {
   color: #000;
+}
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 </style>

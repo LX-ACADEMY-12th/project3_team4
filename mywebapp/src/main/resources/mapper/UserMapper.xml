@@ -3,18 +3,18 @@
 <mapper namespace="com.team4.mywebapp.mapper.UserMapper">
 
 	<update id="updateUserInfo" parameterType="com.team4.mywebapp.dto.UserUpdateDto">
-        UPDATE 
-        	user
-        SET
-        	today_mood = #{todayMood},
-        	status_message = #{statusMessage},
-            birth_date = #{birthDate},
-            gender = #{gender},
-            region = #{region},
-            hobby = #{hobby},
-            profile_photo_path = #{profileImageFile}
-        WHERE 
-        	user_id = #{userId}
-    </update>
+	    UPDATE user
+	    SET
+	        <trim suffixOverrides=",">
+	            <if test="profilePhotoPath != null">profile_photo_path = #{profilePhotoPath},</if>
+	            <if test="statusMessage != null">status_message = #{statusMessage},</if>
+	            <if test="todayMood != null">today_mood = #{todayMood},</if>
+	            <if test="birthDate != null">birth_date = #{birthDate},</if>
+	            <if test="gender != null">gender = #{gender},</if>
+	            <if test="region != null">region = #{region},</if>
+	            <if test="hobby != null">hobby = #{hobby},</if>
+	        </trim>
+	    WHERE user_id = #{userId}
+	</update>
 
 </mapper>

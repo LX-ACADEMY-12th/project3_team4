@@ -42,6 +42,11 @@ public class MiniHomeRestController {
     	try {
     		// Service 계층의 메서드를 호출하여 사용자 미니홈피 정보를 가져옵니다.
     		 MiniHomeDto miniHomedto = miniHomeService.getMiniHomeByUserId(userId);
+    		 
+    		// 디버깅용 로그 추가
+	        System.out.println("프로필 이미지 경로: " + miniHomedto.getProfileImagePath());
+	        System.out.println("상태 메시지: " + miniHomedto.getStatusMessage());
+	        System.out.println("오늘 기분: " + miniHomedto.getTodayMood());
     		
     		// 성공적으로 데이터를 가져왔을 경우, HTTP 상태 코드 200(OK)와 함께 데이터를 응답합니다.
             return ResponseEntity.ok(miniHomedto);

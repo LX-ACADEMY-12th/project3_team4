@@ -10,6 +10,10 @@ public class MiniHomeDto {
 	private String statusMessage;
 	private String youtubeVideoId;
 	private String backgroundColor;
+    private String birthDate;
+    private String gender;
+    private String region;
+    private String hobby;
 
 	// 방문자 통계 DTO	
 	private VisitCountDto visitCount;
@@ -61,6 +65,30 @@ public class MiniHomeDto {
 	}
 	public void setBackgroundColor(String backgroundColor) {
 		this.backgroundColor = backgroundColor;
+	}
+	public String getBirthDate() {
+		return birthDate;
+	}
+	public void setBirthDate(String birthDate) {
+		this.birthDate = birthDate;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	public String getRegion() {
+		return region;
+	}
+	public void setRegion(String region) {
+		this.region = region;
+	}
+	public String getHobby() {
+		return hobby;
+	}
+	public void setHobby(String hobby) {
+		this.hobby = hobby;
 	}
 
 }
