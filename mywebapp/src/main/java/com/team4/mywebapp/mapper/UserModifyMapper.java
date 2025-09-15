@@ -17,5 +17,12 @@ public interface UserModifyMapper {
 	// param: 수정할 사용자 정보 Dto
 	// return: 업데이트 된 행의 개수
 	int updateUser(UserModifyDto userModityDto);
+	
+	/**
+     *
+     * @param  
+     * @return 
+     */
+	int updateUserProfilePhoto(UserModifyDto userModifyDto);
 
 }

@@ -72,7 +72,7 @@ public class UserModifyController {
             dto.setProfilePhotoPath(savedPath); // 저장된 파일 경로를 DTO에
             
             // 3. Service를 통해 DB의 프로필 경로 업데이트
-            int updateRows = usermodifyService.updateUser(dto);
+            int updateRows = usermodifyService.updateUserProfilePhoto(dto);
             
             // 4. 업데이트 성공 여부 확인
             if (updateRows > 0) {
@@ -87,21 +87,51 @@ public class UserModifyController {
         }
     }
  // 실제 파일을 서버에 저장하는 private 메소드
+    
     private String saveProfileImage(MultipartFile file, String string) {
         try {
-            String uploadDir = "src/main/resources/static/assets/images/";
-            String fileName = String.valueOf(string) + "_" + System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        	 // VSCode에서 보이는 프론트엔드 프로젝트 경로
+            String frontendProjectPath = "C:/Users/parkb/CYWORLD/frontend_vue";
+            String uploadDir = frontendProjectPath + "/src/assets/images/userProfile/";
+            String projectPath = System.getProperty("user.dir");
+            
+
+            System.out.println("프로젝트 경로: " + projectPath);
+            System.out.println("업로드 디렉토리: " + uploadDir);
+
+            // 원본 파일명 확인 및 처리
+            String originalFileName = file.getOriginalFilename();
+            System.out.println("원본 파일명: " + originalFileName);
+            
+            if (originalFileName == null || originalFileName.isEmpty()) {
+                originalFileName = "upload.jpg"; // 기본 파일명
+            }
+            
+            String fileName = String.valueOf(string) + "_" + System.currentTimeMillis() + "_" + originalFileName;
             String filePath = uploadDir + fileName;
+            System.out.println("저장할 파일 경로: " + filePath);
 
-            new File(uploadDir).mkdirs();
-            file.transferTo(new File(filePath));
+            // 디렉토리 생성
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                boolean created = directory.mkdirs();
+                System.out.println("디렉토리 생성 결과: " + created);
+            }
 
-            return "/assets/images/" + fileName;
+            // 파일 저장
+            File targetFile = new File(filePath);
+            file.transferTo(targetFile);
+            System.out.println("파일 저장 완료: " + targetFile.getAbsolutePath());
+
+            return "/uploads/profile/" + fileName;
 
         } catch (IOException e) {
-            throw new RuntimeException("파일 저장 실패", e);
+            System.err.println("파일 저장 실패 상세: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("파일 저장 실패: " + e.getMessage(), e);
         }
     }
+    
     
 	
 }

@@ -32,8 +32,14 @@ public class UserModifyService {
 		
 	}
 	
-	
-	
+	/**
+     * 
+     * @param 
+     * @return 
+     */
+	public int updateUserProfilePhoto(UserModifyDto userModifyDto) {
+	    return usermodifyMapper.updateUserProfilePhoto(userModifyDto);
+	}
 	
 
 }

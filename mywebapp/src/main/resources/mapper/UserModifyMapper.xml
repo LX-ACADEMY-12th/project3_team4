@@ -21,6 +21,7 @@
 	    WHERE m.minihome_id = #{minihomeId}
 	</select>
 	
+	
 	<update id="updateUser" parameterType="com.team4.mywebapp.dto.UserModifyDto">
 	    UPDATE user u
 	    JOIN minihome m ON u.user_id = m.minihome_owner_id
@@ -35,6 +36,15 @@
 	        m.background_color_id = #{backgroundColorId},
 	        m.theme_theme_id = #{themeThemeId}
 	    WHERE m.minihome_id = #{minihomeId}
+	</update>
+	 
+	
+	<update id="updateUserProfilePhoto" parameterType="com.team4.mywebapp.dto.UserModifyDto">
+	    UPDATE user 
+	    SET profile_photo_path = #{profilePhotoPath}
+	    WHERE user_id = (
+	        SELECT minihome_owner_id FROM minihome WHERE minihome_id = #{minihomeId}
+	    )
 	</update>
 	
 	
