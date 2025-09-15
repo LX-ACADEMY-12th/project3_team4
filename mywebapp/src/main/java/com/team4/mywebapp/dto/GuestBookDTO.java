@@ -2,16 +2,23 @@ package com.team4.mywebapp.dto;
 
 import java.time.LocalDateTime;
 
-public class GuestBookDTO {
+public class GuestBookDto {
 
 	private Long guestBookId;
 	private String nickname;
 	private String guestBookContent;
 	private LocalDateTime writtenAt; // 작성일시
 	private int guestBookMiniHomeId;
-	// private int guestBookReplyId;
 	private int guestBookWriterId;
+	private String profilePhotoPath;
+	private String miniHomeOwnerLoginId;
 	
+	public String getProfilePhotoPath() {
+		return profilePhotoPath;
+	}
+	public void setProfilePhotoPath(String profilePhotoPath) {
+		this.profilePhotoPath = profilePhotoPath;
+	}
 	public Long getGuestBookId() {
 		return guestBookId;
 	}
@@ -45,19 +52,17 @@ public class GuestBookDTO {
 		this.guestBookMiniHomeId = guestBookMiniHomeId;
 	}
 	
-	/*
-	public int getGuestBookReplyId() {
-		return guestBookReplyId;
-	}
-	public void setGuestBookReplyId(int guestBookReplyId) {
-		this.guestBookReplyId = guestBookReplyId;
-	}
-	*/
 	public int getGuestBookWriterId() {
 		return guestBookWriterId;
 	}
 	public void setGuestBookWriterId(int guestBookWriterId) {
 		this.guestBookWriterId = guestBookWriterId;
+	}
+	public String getMiniHomeOwnerLoginId() {
+		return miniHomeOwnerLoginId;
+	}
+	public void setMiniHomeOwnerLoginId(String miniHomeOwnerLoginId) {
+		this.miniHomeOwnerLoginId = miniHomeOwnerLoginId;
 	}
 	
 }
