@@ -34,6 +34,11 @@
       <div v-if="guestbooks.length === 0" class="empty-state">
         방명록이 없습니다.
       </div>
+
+      <!-- 페이지네이션 -->
+      <div v-if="pagination1.total > 0" class="pagination-wrapper"> <!-- totalCount => total 수정 -->
+        <Pagination :pagination="pagination1" :requestFunc="(page, perPage) => requestGuestBookList(page, perPage)" />
+      </div>
     </div>
 
     <!-- 방명록 작성 -->
@@ -50,10 +55,7 @@
       </div>
     </div>
 
-    <!-- 페이지네이션 -->
-    <div v-if="pagination1.totalCount > 0" class="pagination-wrapper">
-      <Pagination :pagination="pagination1" :requestFunc="(page, perPage) => requestGuestBookList(page, perPage)" />
-    </div>
+
 
     <!-- 에러 메시지 -->
     <div v-if="errorMessage" class="error-message">
@@ -80,7 +82,7 @@ const perPage = ref(2)
 const pagination1 = ref(makePagination({
   page: 1,
   perPage: 2,
-  totalCount: 0
+  total: 0 // totalCount => total 수정
 }))
 
 // 로딩 상태
@@ -125,7 +127,7 @@ watch(
     // ID가 실제로 변경되었을 때만 데이터를 다시 불러옵니다.
     if (newId !== oldId) {
       console.log(`방명록 ID 변경 감지: ${oldId} -> ${newId}`);
-      requestGuestBookList(newId, 1, perPage.value);
+      requestGuestBookList(1, perPage.value);
     }
   },
   { immediate: true } // 💡 컴포넌트가 처음 마운트될 때 즉시 실행합니다.
@@ -134,7 +136,7 @@ watch(
 /**
  * 방명록 목록 조회
  */
-async function requestGuestBookList(miniHomeOwnerId, page = 1, itemsPerPage = perPage.value) {
+async function requestGuestBookList(page = 1, itemsPerPage = perPage.value) {
   if (isLoading.value) return
 
   isLoading.value = true
@@ -147,7 +149,7 @@ async function requestGuestBookList(miniHomeOwnerId, page = 1, itemsPerPage = pe
       },
       timeout: 10000
     })
-
+    console.log("서버 응답 데이터:", response.data);
     const allData = Array.isArray(response.data) ? response.data : []
     const totalCount = allData.length
 
@@ -155,7 +157,6 @@ async function requestGuestBookList(miniHomeOwnerId, page = 1, itemsPerPage = pe
     const start = (page - 1) * itemsPerPage
     const end = start + itemsPerPage
     guestbooks.value = allData.slice(start, end)
-
     pagination1.value = makePagination({
       page,
       perPage: itemsPerPage,
@@ -197,16 +198,18 @@ async function goToInsert() {
   errorMessage.value = ""
 
   const payload = {
-    guestbookContent: newContent.value.trim(),
-    guestbookMinihomeId: 1,
-    guestbookWriterId: parseInt(loginUserPk)
+    guestBookContent: newContent.value.trim(),
+    miniHomeOwnerLoginId: props.miniHomeOwnerLoginId, // 임시로 넣은 데이터니까 바꿔줘야함 -> 라우터에서 현재 내가 보고있는 페이지에서의 주인 로그인 아이디를 가져옴
+    guestBookWriterId: parseInt(loginUserPk) // 이건 로그인한 유저의 PK값
   }
+
+  console.log("payload to send:", payload)
 
   try {
     await axios.post('http://localhost:8080/api/guestbook-insert', payload)
     newContent.value = ""
     await requestGuestBookList(1, perPage.value)
-
+    alert(`방명록 추가 성공!`)
   } catch (error) {
     console.error('방명록 작성 오류:', error)
     errorMessage.value = '방명록 작성에 실패했습니다.'
@@ -269,6 +272,7 @@ function formatDate(dateString) {
       minute: '2-digit'
     })
   } catch (error) {
+    console.error('방명록 날짜 포맷팅 오류:', error)
     return dateString
   }
 }
@@ -450,7 +454,12 @@ function formatDate(dateString) {
 .pagination-wrapper {
   display: flex;
   justify-content: center;
+  margin-top: auto;
   flex-shrink: 0;
+  transform: scale(0.7);
+  /* 전체 크기를 80%로 축소 */
+  transform-origin: center;
+  /* 가운데 기준으로 줄이기 */
 }
 
 .error-message {

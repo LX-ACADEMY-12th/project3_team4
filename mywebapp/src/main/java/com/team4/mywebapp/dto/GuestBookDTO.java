@@ -11,6 +11,7 @@ public class GuestBookDto {
 	private int guestBookMiniHomeId;
 	private int guestBookWriterId;
 	private String profilePhotoPath;
+	private String miniHomeOwnerLoginId;
 	
 	public String getProfilePhotoPath() {
 		return profilePhotoPath;
@@ -56,6 +57,12 @@ public class GuestBookDto {
 	}
 	public void setGuestBookWriterId(int guestBookWriterId) {
 		this.guestBookWriterId = guestBookWriterId;
+	}
+	public String getMiniHomeOwnerLoginId() {
+		return miniHomeOwnerLoginId;
+	}
+	public void setMiniHomeOwnerLoginId(String miniHomeOwnerLoginId) {
+		this.miniHomeOwnerLoginId = miniHomeOwnerLoginId;
 	}
 	
 }

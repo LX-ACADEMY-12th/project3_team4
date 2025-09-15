@@ -1,7 +1,5 @@
 package com.team4.mywebapp.dto;
 
-import java.util.Date;
-
 public class MiniHomeDto {
 	
 	private int userId;

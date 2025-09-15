@@ -10,12 +10,12 @@
 		    gb.written_at AS writtenAt,
 		    gb.guestbook_minihome_id AS guestBookMiniHomeId,
 		    gb.guestbook_writer_id AS guestBookWriterId,
-		    writer.nickname AS nickname,  -- 작성자 닉네임
+		    writer.nickname AS nickname,
 		    writer.profile_photo_path AS profielPhotoPath
 		FROM 
 		    guestbook AS gb 
 		    INNER JOIN user AS owner ON owner.user_id = gb.guestbook_minihome_id  -- 미니홈피 주인
-		    INNER JOIN user AS writer ON writer.user_id = gb.guestbook_writer_id  -- 방명록 작성자
+		    INNER JOIN user AS writer ON writer.user_id = gb.guestbook_writer_id  -- 방명록S작성자
 		WHERE 
 		    owner.login_id = #{miniHomeOwnerLoginId}
 		ORDER BY 
@@ -24,18 +24,17 @@
 	
 	<!-- 방명록 추가 -->
 	<insert id="insertGuestbook" parameterType="com.team4.mywebapp.dto.GuestBookDto">
-	  INSERT INTO guestbook (
-	    guestbook_content,
-	    written_at,
-	    guestbook_minihome_id,
-	    guestbook_writer_id
-	  )
-	  VALUES (
-	    #{guestBookContent},
-	    NOW(),
-	    #{guestBookMiniHomeId},
-	    #{guestBookWriterId}
-	  )
+		INSERT INTO guestbook (
+		    guestbook_content,
+		    written_at,
+		    guestbook_minihome_id,
+		    guestbook_writer_id
+		) VALUES (
+		     #{guestBookContent},
+		    NOW(),
+		    (SELECT minihome_id FROM minihome WHERE minihome_owner_id = (SELECT user_id FROM user WHERE login_id = #{miniHomeOwnerLoginId})),
+		    #{guestBookWriterId}
+		);
 	</insert>
 
     

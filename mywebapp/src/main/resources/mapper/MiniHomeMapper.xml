@@ -36,5 +36,51 @@
 			LEFT JOIN bgm AS b ON mh.minihome_id = b.minihome_minihome_id
 		WHERE u.login_id = #{userId};
 	</select>
+	
+	<insert id="insertMiniHome" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
+        INSERT INTO minihome (
+            today_mood,
+            status_message,
+            youtube_video_id,
+            background_color,
+            applied_theme_id,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{todayMood},
+            #{statusMessage},
+            #{youtubeVideoId},
+            #{backgroundColor},
+            #{appliedThemeId},
+            #{createdAt},
+            #{updatedAt}
+        )
+    </insert>
+
+	<update id="updateMiniHome" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
+	    UPDATE minihome
+	    SET
+	        background_color_id = #{backgroundColor},
+	        applied_theme_id = #{appliedThemeId},
+	        updated_at = #{updatedAt}
+	    WHERE
+	        minihome_owner_id = (SELECT user_id FROM user WHERE login_id = #{miniHomeOwnerLoginId});
+	</update>
+	
+    <update id="updateBgm" parameterType="com.team4.mywebapp.dto.MiniHomeUpdateDto">
+        UPDATE bgm
+        SET
+            youtube_url = #{youtubeVideoId}
+        WHERE
+            minihome_minihome_id = (
+                SELECT 
+                	minihome_id
+                FROM 
+                	minihome
+                WHERE 
+                	minihome_owner_id = (SELECT user_id FROM user WHERE login_id = #{miniHomeOwnerLoginId})
+            )
+    </update>
+	
 
 </mapper>

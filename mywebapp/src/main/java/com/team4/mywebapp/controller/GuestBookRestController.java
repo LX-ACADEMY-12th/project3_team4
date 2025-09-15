@@ -63,10 +63,22 @@ public class GuestBookRestController {
      */
     @PostMapping("/guestbook-insert")
     public ResponseEntity<String> insertGuestbook(@RequestBody GuestBookDto guestbookDto) {
-        boolean isSuccess = guestbookService.insertGuestbook(guestbookDto);
-        if (isSuccess) {
-            return ResponseEntity.ok("success");
-        } else {
+        try {
+            boolean isSuccess = guestbookService.insertGuestbook(guestbookDto);
+            
+            if (isSuccess) {
+                // 방명록 추가 성공
+                System.out.println("방명록 추가 성공: " + guestbookDto.toString());
+                return ResponseEntity.ok("success");
+            } else {
+                // 서비스에서 false를 반환한 경우 (논리적 실패)
+                System.out.println("방명록 추가 실패: 서비스 로직에서 실패");
+                return ResponseEntity.status(500).body("fail");
+            }
+        } catch (Exception e) {
+            // 예상치 못한 예외가 발생한 경우 (예: DB 연결 오류, SQL 오류)
+            System.err.println("방명록 추가 중 예상치 못한 오류 발생: " + e.getMessage());
+            e.printStackTrace(); // 상세한 스택 트레이스를 콘솔에 출력
             return ResponseEntity.status(500).body("fail");
         }
     }

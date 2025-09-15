@@ -4,6 +4,7 @@ mywebapp/.settings/
 mywebapp/.classpath  
 mywebapp/.project
 mywebapp/.factorypath
+mywebapp/src/main/resources/application.properties
 
 # Vue.js (frontend_vue 관련)  
 frontend_vue/node_modules/
