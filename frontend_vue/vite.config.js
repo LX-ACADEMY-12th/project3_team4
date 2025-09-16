@@ -15,4 +15,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  // 아래 server 속성을 추가하면 됩니다.
+  server: {
+    host: '0.0.0.0'
+  }
 })

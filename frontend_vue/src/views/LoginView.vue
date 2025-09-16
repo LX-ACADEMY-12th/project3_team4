@@ -1,29 +1,35 @@
 <template>
-  <div class="container">
+  <!-- 부트스트랩 클래스로 변환된 싸이월드 스타일 로그인 -->
+  <div class="container-custom">
 
-    <header class="header">
-      <div class="logo-wrapper">
+    <header class="text-center mb-4">
+      <div class="logo-wrapper mx-auto mb-3">
         <img src="@/assets/images/lx.png" alt="LX 로고" class="logo-img">
       </div>
-      <h1 class="title">XIIWORLD</h1>
-      <p class="team">team4</p>
+      <h1 class="title mb-1">XIIWORLD</h1>
+      <p class="subtitle mb-0">로그인하기</p>
     </header>
 
-    <div class="form-wrapper">
+    <div class="w-100">
+      <div class="welcome-text text-center mb-3">XIIWORLD에 로그인 하세요!</div>
+      
       <form @submit.prevent="handleLogin">
-        <div class="input-container">
-          <input type="text" placeholder="아이디(이메일)" v-model="loginData.loginId" class="input-field" required>
+        <div class="mb-2">
+          <input type="text" placeholder="아이디(이메일)" v-model="loginData.loginId" class="form-control form-control-sm cyworld-input" required>
         </div>
-        <div class="input-container">
-          <input type="password" placeholder="비밀번호" v-model="loginData.loginPw" class="input-field" required>
+        <div class="mb-3">
+          <input type="password" placeholder="비밀번호" v-model="loginData.loginPw" class="form-control form-control-sm cyworld-input" required>
         </div>
 
-        <div class="button-row">
-          <button type="submit" class="login-btn">로그인</button>
-
-          <button type="button" @click="$router.push('/signup')" class="signup-btn">회원가입</button>
+        <div class="d-flex gap-1 mb-3">
+          <button type="submit" class="btn btn-sm cyworld-btn-primary flex-fill">로그인</button>
+          <button type="button" @click="$router.push('/signup')" class="btn btn-sm cyworld-btn-secondary flex-fill">회원가입</button>
         </div>
       </form>
+      
+      <div class="info-box text-center">
+        <span>다시 돌아온 XIIWORLD 환영합니다.</span>
+      </div>
     </div>
   </div>
 </template>
@@ -95,107 +101,141 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-/*
-'scoped'는 이 스타일이 현재 컴포넌트에만 적용되도록 함.
-기존 .input-id, .input-pw를 .input-field로 통일하여 재사용성을 높임.
-*/
-
-.container {
-  width: 400px;
-  height: 400px;
-  background-color: white;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
-  box-sizing: border-box;
+/* 전체 페이지 기본 설정 */
+body {
+  background-color:white !important; 
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif !important; 
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 15px;
+/* 로그인 폼 전체 컨테이너 (부트스트랩 클래스와 함께 사용) */
+.container-custom {
+  width: 350px; /* 고정 너비 (당시 해상도에 맞는 작은 크기) */
+  height: auto; /* 내용에 따라 높이 자동 조절 */
+  background-color: white; /* 깔끔한 흰색 배경 */
+  border: 1px solid #d5d5d5; /* 연한 회색 테두리 (둥글지 않은 직선형) */
+  display: flex; /* flexbox 레이아웃 사용 */
+  flex-direction: column; /* 자식 요소들을 세로 방향으로 배치 */
+  align-items: center; /* 가로축 중앙 정렬 */
+  padding: 20px; /* 내부 여백 */
+  box-sizing: border-box; /* padding과 border를 width에 포함하여 계산 */
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif; /* 폰트 재지정 (확실히 하기 위해) */
+  margin: 0 auto; /* 페이지 중앙 정렬 */
 }
 
+/* 로고를 감싸는 원형 컨테이너 */
 .logo-wrapper {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: black;
-  border: 2px solid #ddd;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto 10px auto;
-  overflow: hidden;
+  width: 50px; /* 원의 너비 */
+  height: 50px; /* 원의 높이 */
+  border-radius: 50%; /* 완전한 원 만들기 (50% = 원) */
+  background-color: #ff6600; /* 시그니처 오렌지 색상 */
+  display: flex; /* flexbox로 내부 요소 중앙 정렬 */
+  justify-content: center; /* 가로축 중앙 정렬 */
+  align-items: center; /* 세로축 중앙 정렬 */
 }
 
+/* 로고 이미지 스타일 */
 .logo-img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+  width: 30px; /* 이미지 너비 */
+  height: 30px; /* 이미지 높이 */
+  object-fit: contain; /* 비율 유지하면서 컨테이너에 맞춤 */
 }
 
+/* 메인 제목 (XIIWORLD) */
 .title {
-  font-size: xx-large;
-  font-weight: bold;
-  color: gray;
+  font-size: 18px !important; /* 글자 크기 */
+  font-weight: bold !important; /* 굵은 글씨 */
+  color: #ff6600 !important; /* 오렌지 색상 */
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif !important; 
 }
 
-.team {
-  color: gray;
-  font-size: smaller;
+/* 부제목 (로그인하기) */
+.subtitle {
+  font-size: 14px !important; /* 제목보다 작은 글자 크기 */
+  color: #666666 !important; /* 중간 톤의 회색 */
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif !important; 
 }
 
-.form-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 300px;
-  align-items: center;
+/* 환영 메시지가 들어가는 노란색 박스 */
+.welcome-text {
+  background-color: #fff4e6; /* 연한 크림/오렌지 배경색 */
+  color: #ff6600; /* 오렌지 텍스트 색상 */
+  font-size: 11px;
+  padding: 8px 12px; /* 내부 여백 (위아래 8px, 좌우 12px) */
+  border: 1px solid #ffd4a3; /* 오렌지 테두리 */
+  width: 100%; /* 전체 너비 사용 */
+  box-sizing: border-box; /* padding을 width에 포함 */
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif;
 }
 
-.input-container {
-  width: 100%;
-  /* 부모 컨테이너에 맞게 너비를 100%로 설정. */
+/* 부트스트랩 입력 필드 커스터마이징 (싸이월드 스타일) */
+.cyworld-input {
+  border: 1px solid #cccccc !important; /* 연한 회색 테두리 */
+  background-color: #ffffff !important; /* 흰색 배경 */
+  font-size: 11px !important; /* 작은 글씨 크기 */
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif !important; 
+  color: #333333 !important; /* 진한 회색 텍스트 색상 */
+  padding: 6px 8px !important; /* 내부 여백 (위아래 6px, 좌우 8px) */
+  border-radius: 0 !important; /* 모서리 직각 */
 }
 
-.input-field {
-  width: 100%;
-  /* input 필드 너비를 부모 컨테이너(input-container)에 맞춤. */
-  box-sizing: border-box;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+/* 입력 필드에 포커스(클릭/탭)가 있을 때 */
+.cyworld-input:focus {
+  outline: none !important; /* 브라우저 기본 포커스 링 제거 */
+  border-color: #ff6600 !important; /* 테두리 오렌지 */
+  background-color: white !important; 
+  box-shadow: none !important; /* 그림자 제거 */
 }
 
-.button-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  justify-content: center;
+/* placeholder 텍스트 (힌트 텍스트) 스타일 */
+.cyworld-input::placeholder {
+  color: #999999 !important; /* 연한 회색 */
+  font-size: 11px !important; /* 작은 글씨 크기 */
 }
 
-.login-btn,
-.signup-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
+/* 로그인 버튼 (주요 액션이므로 강조) */
+.cyworld-btn-primary {
+  background-color: #ff6600 !important; /* 오렌지 배경 */
+  color: white !important; /* 흰색 텍스트 */
+  border: 1px solid #ff6600 !important; /* 오렌지 테두리 */
+  font-size: 11px !important; /* 작은 글씨 크기 */
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif !important; /* 폰트 지정 */
+  padding: 6px 12px !important; /* 내부 여백 */
+  border-radius: 0 !important; /* 모서리 직각 */
 }
 
-.login-btn {
-  background-color: #007bff;
-  color: white;
+/* 로그인 버튼에 마우스를 올렸을 때 */
+.cyworld-btn-primary:hover {
+  background-color: #e55a00 !important; /* 조금 더 진한 오렌지 */
+  border-color: #e55a00 !important;
 }
 
-.signup-btn {
-  background-color: #6c757d;
-  color: white;
+/* 회원가입 버튼 (보조 액션) */
+.cyworld-btn-secondary {
+  background-color: #f8f8f8 !important; /* 연한 회색 배경 */
+  color: #333333 !important; /* 진한 회색 텍스트 */
+  border: 1px solid #cccccc !important; /* 연한 회색 테두리 */
+  font-size: 11px !important; /* 작은 글씨 크기 */
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif !important; 
+  padding: 6px 12px !important; /* 내부 여백 */
+  border-radius: 0 !important; /* 모서리를 직각으로 */
+}
+
+/* 회원가입 버튼에 마우스를 올렸을 때 */
+.cyworld-btn-secondary:hover {
+  background-color: #eeeeee !important; /* 조금 더 진한 회색으로 변경 */
+  border-color: #cccccc !important;
+  color: #333333 !important;
+}
+
+/* 하단 정보를 담는 박스 */
+.info-box {
+  width: 100%; /* 전체 너비 사용 */
+  background-color: #f8f9fa; /* 매우 연한 회색 배경 */
+  border: 1px solid #e9ecef; /* 연한 회색 테두리 */
+  padding: 12px; /* 내부 여백 */
+  box-sizing: border-box; /* padding을 width에 포함 */
+  font-size: 10px; 
+  color: #666666; /* 회색 텍스트 */
+  font-family: "굴림", Gulim, "돋움", Dotum, Arial, sans-serif; 
 }
 </style>
