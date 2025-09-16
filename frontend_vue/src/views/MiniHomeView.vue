@@ -1,334 +1,378 @@
 <template>
-  <div class="d-flex flex-column p-3" :style="{
+  <!-- 전체 영역 -->
+  <div class="d-flex flex-full vw-100 cy-bg" :style="{
     'font-family': 'DotGothic16, sans-serif',
-    height: '700px',
+    height: '100vh',
     width: '900px',
     'background-color': userInfo.backgroundColor,
   }">
+    <!-- 왼쪽 여백 -->
+    <div style="width: 15%; height: 100%;"></div>
 
-    <!-- 상단 헤더: 미니홈피 제목, 방문자 통계, 수정 버튼 영역 -->
-    <div class="d-flex p-2 mb-3 text-black justify-content-between align-items-center">
-      <!-- 왼쪽: 미니홈피 소유자 이름과 방문자 통계 -->
-      <div class="d-flex flex-column ms-4 me-4 align-items-center border border-dark">
-        <span class="m-3">{{ userInfo.nickname || '사용자' }}님의 미니홈피</span>
-        <div class="border border-dark">
-          <!-- TODAY: 오늘 방문자 수, TOTAL: 총 방문자 수 -->
-          <span class="badge bg-danger me-1">TODAY {{ visitCount?.todayCount || '13' }}</span>
-          <span class="badge bg-secondary">TOTAL {{ visitCount?.totalCount || '13' }}</span>
-        </div>
-      </div>
+    <!-- 메인 콘텐츠 영역 -->
+    <div style="width: 70%; height: 100%;">
+      <div class="border-dashed">
+        <div class="m-2 p-2 cy-window cy-shadow">
 
-      <!-- 중앙: 싸이월드 로고 영역 -->
-      <div class="border border-dark col-8 mx-auto">
-        <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD" />
-        <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" />
-      </div>
+          <!-- 상단 헤더 영역 -->
+          <div class="border mb-3 cy-titlebar">
+            <div class="d-flex">
+              <!-- 방문자 통계 -->
+              <div class="flex-fill border me-3 d-flex flex-column justify-content-end align-items-center p-2 cy-panel"
+                style="width: 25%;">
+                <div>
+                  <!-- TODAY: 오늘 방문자 수, TOTAL: 총 방문자 수 -->
+                  <span class="cy-title-text">{{ userInfo.nickname || '사용자' }}님의 미니홈피</span><br>
+                  <span class="badge cy-badge-today me-1">TODAY {{ visitCount?.todayCount || '13' }}</span>
+                  <span class="badge cy-badge-total">TOTAL {{ visitCount?.totalCount || '13' }}</span>
+                </div>
+              </div>
 
-      <!-- 오른쪽: 수정 버튼 (본인 미니홈피일 때만 표시) -->
-      <div v-if="isMyMinihome">
-        <button class="btn btn-sm btn-outline-info" @click="toggleEdit" :disabled="isSaving">
-          <!-- 수정 모드에 따라 버튼 텍스트 변경: 수정 → 저장 → 저장중... -->
-          {{ isSaving ? '저장중...' : (isEditing ? '저장' : '수정') }}
-        </button>
-      </div>
-    </div>
-
-    <!-- 저장 성공/실패 메시지 알림 -->
-    <div v-if="saveMessage" class="alert alert-dismissible fade show" :class="saveMessageClass" role="alert">
-      {{ saveMessage }}
-      <button type="button" class="btn-close" @click="saveMessage = ''"></button>
-    </div>
-
-    <!-- 메인 컨텐츠 영역: 왼쪽 사이드바 + 오른쪽 메인 콘텐츠 -->
-    <div class="d-flex flex-fill flex-row">
-
-      <!-- 왼쪽 사이드바: 프로필, 기분, 개인정보, 상태메시지 등 -->
-      <div class="d-flex flex-column bg-white p-2 me-2 col-3 sidebar-left">
-
-        <!-- 프로필 사진 영역 -->
-        <div class="d-flex flex-column align-items-center mb-2 border border-dark profile-box">
-          <div class="w-100 h-100">
-            <!-- 수정 모드일 때: 파일 업로드 + 미리보기 -->
-            <div v-if="isEditing">
-              <input type="file" @change="onFileChange" class="form-control form-control-sm mb-1" accept="image/*" />
-              <!-- 새로 선택한 이미지 미리보기 -->
-              <img v-if="previewImage" :src="previewImage" class="profile-img" />
-              <!-- 기존 프로필 이미지 표시 -->
-              <img v-else-if="userInfo.profileImage" :src="userInfo.profileImage" class="profile-img" />
-            </div>
-            <!-- 일반 모드일 때: 프로필 이미지만 표시 -->
-            <img v-else :src="userInfo.profileImage || 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Profile'"
-              class="profile-img" />
-          </div>
-        </div>
-
-        <!-- 오늘의 기분 영역 -->
-        <div class="text-center mb-1 small">
-          <!-- 수정 모드: 기분 선택 드롭다운 -->
-          <div v-if="isEditing">
-            <select v-model="userInfo.todayMood" class="form-select form-select-sm">
-              <option value="">[기분 선택]</option>
-              <option value="😊 행복">😊 행복</option>
-              <option value="😢 슬픔">😢 슬픔</option>
-              <option value="😡 화남">😡 화남</option>
-              <option value="😴 피곤">😴 피곤</option>
-              <option value="😍 설렘">😍 설렘</option>
-              <option value="🤔 고민중">🤔 고민중</option>
-              <option value="😪 휴식중">😪 휴식중</option>
-            </select>
-          </div>
-          <!-- 일반 모드: 현재 기분 표시 -->
-          <div v-else class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</div>
-        </div>
-
-        <!-- 생일과 성별 영역 -->
-        <div class="text-center mb-1 small">
-          <!-- 수정 모드: 생일 날짜 선택 + 성별 선택 -->
-          <div v-if="isEditing" class="d-flex gap-1">
-            <input type="date" v-model="userInfo.birthDate" class="form-control form-control-sm" />
-            <select v-model="userInfo.gender" class="form-select form-select-sm" style="max-width: 70px;">
-              <option value="">성별</option>
-              <option value="남자">남자</option>
-              <option value="여자">여자</option>
-            </select>
-          </div>
-          <!-- 일반 모드: 생일과 성별 정보 표시 -->
-          <div v-else>
-            생일: {{ userInfo.birthDate || '등록 안 됨' }}
-            <span v-if="userInfo.gender"> / {{ userInfo.gender }}</span>
-          </div>
-        </div>
-
-        <!-- 지역 정보 영역 -->
-        <div class="text-center mb-1 small">
-          <!-- 수정 모드: 지역 입력 필드 -->
-          <div v-if="isEditing">
-            <input type="text" v-model="userInfo.region" class="form-control form-control-sm" placeholder="지역 입력"
-              maxlength="50" />
-          </div>
-          <!-- 일반 모드: 현재 지역 표시 -->
-          <div v-else>지역: {{ userInfo.region || '등록 안 됨' }}</div>
-        </div>
-
-        <!-- 취미 정보 영역 -->
-        <div class="text-center mb-2 small">
-          <!-- 수정 모드: 취미 선택 드롭다운 -->
-          <div v-if="isEditing">
-            <select v-model="userInfo.hobby" class="form-select form-select-sm">
-              <option value="">[취미 선택]</option>
-              <option value="독서">독서</option>
-              <option value="운동">운동</option>
-              <option value="음악">음악</option>
-              <option value="여행">여행</option>
-              <option value="게임">게임</option>
-              <option value="요리">요리</option>
-              <option value="영화감상">영화감상</option>
-            </select>
-          </div>
-          <!-- 일반 모드: 현재 취미 표시 -->
-          <div v-else>취미: {{ userInfo.hobby || '등록 안 됨' }}</div>
-        </div>
-
-        <!-- 배경색 선택 영역 -->
-        <div class="text-center mb-2 small">
-          <!-- 수정 모드: 배경색 선택 드롭다운 -->
-          <div v-if="isEditing">
-            <select v-model="userInfo.backgroundColor" class="form-select form-select-sm">
-              <option value="#f8f9fa">기본 (연회색)</option>
-              <option value="#cce5ff">파랑</option>
-              <option value="#fddde6">분홍</option>
-              <option value="#212529">검정</option>
-            </select>
-          </div>
-          <!-- 일반 모드: 현재 배경색을 작은 박스로 표시 -->
-          <div v-else>
-            배경색:
-            <span class="d-inline-block"
-              :style="{ backgroundColor: userInfo.backgroundColor, width: '40px', height: '15px', border: '1px solid #000' }"></span>
-          </div>
-        </div>
-
-        <!-- 테마 선택 영역 -->
-        <div class="text-center mb-2 small">
-          <!-- 수정 모드: 테마 선택 드롭다운 -->
-          <div v-if="isEditing">
-            <select v-model="userInfo.theme" class="form-select form-select-sm">
-              <option value="1">심플(기본)</option>
-              <option value="2">귀여운</option>
-              <option value="3">세련된</option>
-              <option value="4">빈티지</option>
-            </select>
-          </div>
-          <!-- 일반 모드: 현재 테마명 표시 -->
-          <div v-else>
-            테마: {{ getThemeName(userInfo.theme) }}
-          </div>
-        </div>
-
-        <!-- 상태 메시지 영역 -->
-        <div class="d-flex flex-column align-items-center mb-2 border border-dark text-center status-box">
-          <!-- 일반 모드: 상태 메시지 표시 -->
-          <p v-if="!isEditing" class="small w-100 m-0 d-flex align-items-center justify-content-center h-100">
-            {{ userInfo.statusMessage || '사용자 작성 멘트' }}
-          </p>
-          <!-- 수정 모드: 상태 메시지 입력 텍스트 영역 -->
-          <textarea v-else v-model="userInfo.statusMessage" class="form-control form-control-sm h-100"
-            placeholder="상태 메시지를 입력하세요" maxlength="200"></textarea>
-        </div>
-
-        <!-- 홈 주인 표시 영역 -->
-        <div class="border border-dark">
-          <div class="d-flex align-items-center">
-            <span class="small me-1">홈주인</span>
-            <span class="small">{{ userInfo.nickname || '나' }}</span>
-          </div>
-        </div>
-
-        <!-- 친구 목록 (파도타기) 영역 -->
-        <div>
-          <select v-model="selectedFriend" class="form-select form-select-sm" @change="goToFriendMiniHome">
-            <option disabled value="">[파도타기]</option>
-            <!-- 전체 사용자 목록을 순회하여 친구 선택 옵션 생성 -->
-            <option v-for="user in users" :key="user.userId" :value="user.loginId">
-              {{ user.nickname }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <!-- 오른쪽 메인 콘텐츠 영역 -->
-      <div class="d-flex flex-grow-1 col-9 flex-column border border-black">
-
-        <!-- 상단 영역: 서비스 공간 + 유튜브 영상/음악 검색 영역 -->
-        <div class="d-flex border border-dark h-25">
-          <!-- 왼쪽: 빈 서비스 공간 -->
-          <div class="d-flex col-8 justify-content-center align-items-center">
-            <span class="w-100 text-center">{{ userInfo.emptySpaceText || '서비스 준비 중...' }}</span>
-          </div>
-
-          <!-- 오른쪽: 유튜브 영역 -->
-          <!-- 수정 모드일 때: 음악 검색 인터페이스 표시 -->
-          <div class="d-flex flex-grow-1 p-2" v-if="isEditing">
-            <div class="w-100">
-              <!-- 음악 검색 입력 폼 -->
-              <div class="mb-2 music-search-container">
-                <div class="input-group input-group-sm">
-                  <!-- 검색어 입력 필드 (엔터키로도 검색 가능) -->
-                  <input type="text" class="form-control" placeholder="음악 제목을 검색하세요..." v-model="musicSearchQuery"
-                    @keyup.enter="searchMusic" />
-                  <!-- 검색 버튼 (검색 중일 때 비활성화) -->
-                  <button class="btn btn-outline-primary" type="button" @click="searchMusic" :disabled="isSearching">
-                    {{ isSearching ? '검색중...' : '검색' }}
-                  </button>
+              <!-- 미니홈피 제목 및 로고 -->
+              <div class="border d-flex justify-content-between align-items-center p-2 cy-panel" style="width: 75%;">
+                <div class="d-flex flex-column align-items-center flex-grow-1">
+                  <div class="mt-2">
+                    <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD"
+                      class="cy-logo" />
+                  </div>
                 </div>
 
-                <!-- 음악 검색 결과 리스트 -->
-                <div v-if="musicSearchResults.length > 0" class="music-search-results">
-                  <div v-for="music in musicSearchResults" :key="music.videoId"
-                    class="music-item p-2 border-bottom cursor-pointer"
-                    :class="{ 'selected': selectedMusicId === music.videoId }" @click="selectMusic(music)">
-                    <div class="d-flex align-items-center">
-                      <!-- 음악 썸네일 이미지 -->
-                      <img :src="music.thumbnail" class="music-thumbnail me-2" />
-                      <div class="flex-grow-1">
-                        <!-- 음악 제목 -->
-                        <div class="music-title">{{ music.title }}</div>
-                        <!-- 채널명 (아티스트명) -->
-                        <div class="music-channel text-muted small">{{ music.channelTitle }}</div>
+                <!-- 수정 버튼 (본인 미니홈피일 때만 표시) -->
+                <div v-if="isMyMinihome" class="ms-3">
+                  <button class="btn btn-sm btn-outline-info cy-btn" @click="toggleEdit" :disabled="isSaving">
+                    <!-- 수정 모드에 따라 버튼 텍스트 변경: 수정 → 저장 → 저장중... -->
+                    {{ isSaving ? '저장중...' : (isEditing ? '저장' : '수정') }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 저장 성공/실패 메시지 알림 -->
+          <div v-if="saveMessage" class="alert alert-dismissible fade show cy-alert" :class="saveMessageClass"
+            role="alert">
+            {{ saveMessage }}
+            <button type="button" class="btn-close" @click="saveMessage = ''"></button>
+          </div>
+
+          <!-- 메인 콘텐츠 영역 -->
+          <div class="d-flex flex-fill flex-row mt-2 cy-panel">
+
+            <!-- 왼쪽 사이드바: 프로필, 기분, 개인정보, 상태메시지 등 -->
+            <div class="p-2 me-2 col-3 d-flex flex-column cy-side">
+              <div class="m-2 border p-2 cy-card">
+
+                <!-- 오늘의 기분 영역 -->
+                <div class="text-center mb-2 small">
+                  <!-- 수정 모드: 기분 선택 드롭다운 -->
+                  <div v-if="isEditing">
+                    <select v-model="userInfo.todayMood" class="form-select form-select-sm cy-input">
+                      <option value="">[기분 선택]</option>
+                      <option value="😊 행복">😊 행복</option>
+                      <option value="😢 슬픔">😢 슬픔</option>
+                      <option value="😡 화남">😡 화남</option>
+                      <option value="😴 피곤">😴 피곤</option>
+                      <option value="😍 설렘">😍 설렘</option>
+                      <option value="🤔 고민중">🤔 고민중</option>
+                      <option value="😪 휴식중">😪 휴식중</option>
+                    </select>
+                  </div>
+                  <!-- 일반 모드: 현재 기분 표시 -->
+                  <div v-else class="text-muted cy-todayline">TODAY IS {{ userInfo.todayMood || '[기분]' }}</div>
+                </div>
+
+                <!-- 프로필 사진 영역 -->
+                <div class="d-flex flex-column align-items-center mb-2 border border-dark profile-box cy-profile"
+                  style="margin: 0 auto; overflow: hidden;">
+                  <div class="w-100 h-100">
+
+                    <!-- 수정 모드일 때: 파일 업로드 입력 -->
+                    <div v-if="isEditing">
+                      <input type="file" @change="onFileChange" class="form-control form-control-sm mb-1 cy-input"
+                        accept="image/*" />
+                    </div>
+
+                    <!-- 이미지 표시 부분 (수정 모드와 일반 모드 모두에서 표시) -->
+                    <!-- 새로 선택한 이미지 미리보기 (수정 모드에서만) -->
+                    <img v-if="isEditing && previewImage" :src="previewImage"
+                      class="profile-img img-fluid d-block mx-auto cy-avatar"
+                      style="width: auto; max-width: 100%; max-height: 150px; object-fit: cover;" />
+
+                    <!-- 기존 프로필 이미지 표시 (수정 모드에서 미리보기가 없을 때 또는 일반 모드) -->
+                    <img v-else-if="userInfo.profileImage" :src="userInfo.profileImage"
+                      class="profile-img img-fluid d-block mx-auto cy-avatar"
+                      style="width: auto; max-width: 100%; max-height: 150px; object-fit: cover;" />
+
+                    <!-- 기본 프로필 이미지 (프로필 이미지가 없을 때) -->
+                    <img v-else :src="'https://via.placeholder.com/120x120/cccccc/ffffff?text=Profile'"
+                      class="profile-img img-fluid d-block mx-auto cy-avatar"
+                      style="width: auto; max-width: 100%; max-height: 150px; object-fit: cover;" />
+                  </div>
+                </div>
+
+                <!-- 상태 메시지 영역 -->
+                <div class="border mb-2 text-center cy-memo" style="height: 50px;">
+                  <!-- 일반 모드: 상태 메시지 표시 -->
+                  <p v-if="!isEditing" class="small w-100 m-0 d-flex align-items-center justify-content-center h-100">
+                    {{ userInfo.statusMessage || '사용자 작성 멘트' }}
+                  </p>
+                  <!-- 수정 모드: 상태 메시지 입력 텍스트 영역 -->
+                  <textarea v-else v-model="userInfo.statusMessage" class="form-control form-control-sm h-100 cy-input"
+                    placeholder="상태 메시지를 입력하세요" maxlength="200"></textarea>
+                </div>
+
+                <!-- 개인정보 영역 -->
+                <div class="border mb-2 p-2 cy-card">
+                  <div class="small">
+                    <!-- 홈 주인 표시 -->
+                    <div class="mb-1">
+                      <span class="me-1">홈주인:</span>
+                      <span class="fw-bold">{{ userInfo.nickname || '나' }}</span>
+                    </div>
+
+                    <!-- 생일과 성별 영역 -->
+                    <div class="mb-1">
+                      <!-- 수정 모드: 생일 날짜 선택 + 성별 선택 -->
+                      <div v-if="isEditing" class="d-flex gap-1 mb-1">
+                        <input type="date" v-model="userInfo.birthDate" class="form-control form-control-sm cy-input" />
+                        <select v-model="userInfo.gender" class="form-select form-select-sm" style="max-width: 70px;">
+                          <option value="">성별</option>
+                          <option value="남자">남자</option>
+                          <option value="여자">여자</option>
+                        </select>
+                      </div>
+                      <!-- 일반 모드: 생일과 성별 정보 표시 -->
+                      <div v-else>
+                        생일: {{ userInfo.birthDate || '등록 안 됨' }}
+                        <span v-if="userInfo.gender"> / {{ userInfo.gender }}</span>
+                      </div>
+                    </div>
+
+                    <!-- 지역 정보 영역 -->
+                    <div class="mb-1">
+                      <!-- 수정 모드: 지역 입력 필드 -->
+                      <div v-if="isEditing">
+                        <input type="text" v-model="userInfo.region" class="form-control form-control-sm cy-input"
+                          placeholder="지역 입력" maxlength="50" />
+                      </div>
+                      <!-- 일반 모드: 현재 지역 표시 -->
+                      <div v-else>지역: {{ userInfo.region || '등록 안 됨' }}</div>
+                    </div>
+
+                    <!-- 취미 정보 영역 -->
+                    <div class="mb-1">
+                      <!-- 수정 모드: 취미 선택 드롭다운 -->
+                      <div v-if="isEditing">
+                        <select v-model="userInfo.hobby" class="form-select form-select-sm cy-input">
+                          <option value="">[취미 선택]</option>
+                          <option value="독서">독서</option>
+                          <option value="운동">운동</option>
+                          <option value="음악">음악</option>
+                          <option value="여행">여행</option>
+                          <option value="게임">게임</option>
+                          <option value="요리">요리</option>
+                          <option value="영화감상">영화감상</option>
+                        </select>
+                      </div>
+                      <!-- 일반 모드: 현재 취미 표시 -->
+                      <div v-else>취미: {{ userInfo.hobby || '등록 안 됨' }}</div>
+                    </div>
+
+                    <!-- 배경색 선택 영역 -->
+                    <div class="mb-1">
+                      <!-- 수정 모드: 배경색 선택 드롭다운 -->
+                      <div v-if="isEditing">
+                        <select v-model="userInfo.backgroundColor" class="form-select form-select-sm cy-input">
+                          <option value="#f8f9fa">기본 (연회색)</option>
+                          <option value="#cce5ff">파랑</option>
+                          <option value="#fddde6">분홍</option>
+                          <option value="#212529">검정</option>
+                        </select>
+                      </div>
+                      <!-- 일반 모드: 현재 배경색을 작은 박스로 표시 -->
+                      <div v-else>
+                        배경색:
+                        <span class="d-inline-block ms-1"
+                          :style="{ backgroundColor: userInfo.backgroundColor, width: '20px', height: '15px', border: '1px solid #000' }"></span>
+                      </div>
+                    </div>
+
+                    <!-- 테마 선택 영역 -->
+                    <div class="mb-1">
+                      <!-- 수정 모드: 테마 선택 드롭다운 -->
+                      <div v-if="isEditing">
+                        <select v-model="userInfo.theme" class="form-select form-select-sm cy-input">
+                          <option value="1">심플(기본)</option>
+                          <option value="2">귀여운</option>
+                          <option value="3">세련된</option>
+                          <option value="4">빈티지</option>
+                        </select>
+                      </div>
+                      <!-- 일반 모드: 현재 테마명 표시 -->
+                      <div v-else>
+                        테마: {{ getThemeName(userInfo.theme) }}
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- 현재 선택된 음악의 미리보기 -->
-              <div v-if="selectedMusicId" class="mt-2">
-                <small class="text-muted">선택된 음악:</small>
-                <!-- 자동재생 없이 컨트롤만 있는 미리보기 iframe -->
-                <iframe :src="`https://www.youtube.com/embed/${selectedMusicId}?autoplay=0&controls=1`" frameborder="0"
-                  style="width: 100%; height: 80px"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen></iframe>
-              </div>
-            </div>
-          </div>
-
-          <!-- 일반 모드이고 유튜브 비디오 ID가 있을 때: 자동재생 영상 -->
-          <div class="d-flex flex-grow-1 p-2" v-else-if="userInfo.youtubeVideoId">
-            <!-- 자동재생, 반복재생, 플레이리스트 설정으로 BGM처럼 작동 -->
-            <iframe
-              :src="`https://www.youtube.com/embed/${userInfo.youtubeVideoId}?autoplay=1&loop=1&playlist=${userInfo.youtubeVideoId}`"
-              frameborder="0" style="width: 100%; height: 100%"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen></iframe>
-          </div>
-
-          <!-- 유튜브 비디오가 없을 때: 빈 공간 표시 -->
-          <div class="d-flex flex-grow-1 p-2 justify-content-center align-items-center bg-light" v-else>
-            <span class="text-muted">동영상 없음</span>
-          </div>
-        </div>
-
-        <!-- 메인 콘텐츠 영역: 탭 시스템 (홈, 방명록, 사진첩) -->
-        <div class="d-flex flex-grow-1 p-1 justify-content-center align-items-center border border-dark">
-          <!-- 탭 콘텐츠 표시 영역 -->
-          <div
-            class="d-flex col-11 justify-content-center align-items-center h-100 border border-dark position-relative">
-
-            <!-- 홈 탭: 미니룸 이미지 표시 -->
-            <div v-if="activeTab === 'home'"
-              class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center">
-              <img
-                :src="userInfo.miniroomImage || 'https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9938F0375BBEF5CC21'"
-                style="width: 100%; height: 100%; object-fit: contain;" alt="미니룸" class="img-fluid" />
-            </div>
-
-            <!-- 방명록 탭: 방명록 컴포넌트 표시 -->
-            <div v-else-if="activeTab === 'guestbook'" class="position-absolute w-100 h-100 d-flex p-3 overflow-auto">
-              <!-- 미니홈피 주인의 로그인 ID를 props로 전달 -->
-              <GuestbookView :mini-home-owner-login-id="miniHomeOwnerLoginId" />
-            </div>
-
-            <!-- 사진첩 탭: 사진 목록 표시 -->
-            <div v-else-if="activeTab === 'photos'" class="position-absolute w-100 h-100 p-3 overflow-auto">
-              <h6>사진첩</h6>
-              <div class="row">
-                <!-- 사진 목록을 순회하여 각 사진 표시 -->
-                <div v-for="photo in photosList" :key="photo.id" class="col-4 mb-2">
-                  <img :src="photo.url" :alt="photo.title" class="img-fluid border" @click="viewPhoto(photo)" />
-                  <small class="d-block text-center">{{ photo.title }}</small>
+                <!-- 친구 목록 (파도타기) 영역 -->
+                <div class="border p-1 cy-card">
+                  <select v-model="selectedFriend" class="form-select form-select-sm cy-input"
+                    @change="goToFriendMiniHome">
+                    <option disabled value="">[파도타기]</option>
+                    <!-- 전체 사용자 목록을 순회하여 친구 선택 옵션 생성 -->
+                    <option v-for="user in users" :key="user.userId" :value="user.loginId">
+                      {{ user.nickname }}
+                    </option>
+                  </select>
                 </div>
-                <!-- 사진이 없을 때 메시지 표시 -->
-                <div v-if="photosList.length === 0" class="text-center text-muted w-100">서비스 준비 중...</div>
               </div>
             </div>
-          </div>
 
-          <!-- 탭 네비게이션 영역 -->
-          <div class="d-flex flex-column h-100 flex-grow-1 justify-content-start">
-            <div class="d-flex flex-column flex-grow-1 justify-content-start">
-              <ul class="nav nav-tabs flex-column">
-                <!-- 홈 탭 -->
-                <li class="nav-item border border-dark">
-                  <a class="nav-link" :class="{ active: activeTab === 'home' }" href="#"
-                    @click.prevent="activeTab = 'home'">홈</a>
-                </li>
-                <!-- 방명록 탭 -->
-                <li class="nav-item border border-dark">
-                  <a class="nav-link" :class="{ active: activeTab === 'guestbook' }" href="#"
-                    @click.prevent="changeTab('guestbook')">방명록</a>
-                </li>
-                <!-- 사진첩 탭 -->
-                <li class="nav-item border border-dark">
-                  <a class="nav-link" :class="{ active: activeTab === 'photos' }" href="#"
-                    @click.prevent="changeTab('photos')">사진첩</a>
-                </li>
-              </ul>
+            <!-- 오른쪽 메인 콘텐츠 영역 -->
+            <div class="flex-grow-1 col-9 d-flex flex-column border border-black">
+
+              <!-- 상단 영역: 서비스 공간 + 유튜브 영상/음악 검색 영역 -->
+              <div class="d-flex border mb-2 h-25 cy-panel h-25">
+                <!-- 왼쪽: 빈 서비스 공간 -->
+                <div class="d-flex col-8 justify-content-center align-items-center border-end cy-service">
+                  <span class="w-100 text-center cy-blink">{{ userInfo.emptySpaceText || '서비스 준비 중...' }}</span>
+                </div>
+
+                <!-- 오른쪽: 유튜브 영역 -->
+                <!-- 수정 모드일 때: 음악 검색 인터페이스 표시 -->
+                <div class="d-flex flex-grow-1 p-2" v-if="isEditing">
+                  <div class="w-100">
+                    <!-- 음악 검색 입력 폼 -->
+                    <div class="mb-2 music-search-container">
+                      <div class="input-group input-group-sm">
+                        <!-- 검색어 입력 필드 (엔터키로도 검색 가능) -->
+                        <input type="text" class="form-control cy-input" placeholder="음악 제목을 검색하세요..."
+                          v-model="musicSearchQuery" @keyup.enter="searchMusic" />
+                        <!-- 검색 버튼 (검색 중일 때 비활성화) -->
+                        <button class="btn btn-outline-primary cy-btn" type="button" @click="searchMusic"
+                          :disabled="isSearching">
+                          {{ isSearching ? '검색중...' : '검색' }}
+                        </button>
+                      </div>
+
+                      <!-- 음악 검색 결과 리스트 -->
+                      <div v-if="musicSearchResults.length > 0" class="music-search-results cy-scroll">
+                        <div v-for="music in musicSearchResults" :key="music.videoId"
+                          class="music-item p-2 border-bottom cursor-pointer cy-hover"
+                          :class="{ 'selected': selectedMusicId === music.videoId }" @click="selectMusic(music)">
+                          <div class="d-flex align-items-center">
+                            <!-- 음악 썸네일 이미지 -->
+                            <img :src="music.thumbnail" class="music-thumbnail me-2 border cy-thumb" />
+                            <div class="flex-grow-1">
+                              <!-- 음악 제목 -->
+                              <div class="music-title fw-bold">{{ music.title }}</div>
+                              <!-- 채널명 (아티스트명) -->
+                              <div class="music-channel text-muted small">{{ music.channelTitle }}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 현재 선택된 음악의 미리보기 -->
+                    <div v-if="selectedMusicId" class="mt-2">
+                      <small class="text-muted">선택된 음악:</small>
+                      <!-- 자동재생 없이 컨트롤만 있는 미리보기 iframe -->
+                      <iframe :src="`https://www.youtube.com/embed/${selectedMusicId}?autoplay=0&controls=1`"
+                        frameborder="0" style="width: 100%; height: 80px"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 일반 모드이고 유튜브 비디오 ID가 있을 때: 자동재생 영상 -->
+                <div class="d-flex flex-grow-1 p-2" v-else-if="userInfo.youtubeVideoId">
+                  <!-- 자동재생, 반복재생, 플레이리스트 설정으로 BGM처럼 작동 -->
+                  <iframe
+                    :src="`https://www.youtube.com/embed/${userInfo.youtubeVideoId}?autoplay=1&loop=1&playlist=${userInfo.youtubeVideoId}`"
+                    frameborder="0" style="width: 100%; height: 100%"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+                </div>
+
+                <!-- 유튜브 비디오가 없을 때: 빈 공간 표시 -->
+                <div class="d-flex flex-grow-1 p-2 justify-content-center align-items-center bg-light" v-else>
+                  <span class="text-muted">동영상 없음</span>
+                </div>
+              </div>
+
+              <!-- 탭영역 -->
+              <div class="flex-fill d-flex border bg-light position-relative cy-panel">
+
+                <!-- 탭 콘텐츠 표시 영역 -->
+                <div class="flex-grow-1 position-relative">
+
+                  <!-- 홈 탭: 미니룸 이미지 표시 -->
+                  <div v-if="activeTab === 'home'"
+                    class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center">
+                    <img
+                      :src="userInfo.miniroomImage || 'https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9938F0375BBEF5CC21'"
+                      style="width: 100%; height: 100%; object-fit: contain;" alt="미니룸" class="img-fluid cy-miniroom" />
+                  </div>
+
+                  <!-- 방명록 탭: 방명록 컴포넌트 표시 -->
+                  <div v-else-if="activeTab === 'guestbook'"
+                    class="position-absolute w-100 h-100 d-flex p-3 overflow-auto cy-scroll">
+                    <!-- 미니홈피 주인의 로그인 ID를 props로 전달 -->
+                    <GuestbookView :mini-home-owner-login-id="miniHomeOwnerLoginId" />
+                  </div>
+
+                  <!-- 사진첩 탭: 사진 목록 표시 -->
+                  <div v-else-if="activeTab === 'photos'"
+                    class="position-absolute w-100 h-100 p-3 overflow-auto cy-scroll">
+                    <h6 class="mb-3 cy-section">사진첩</h6>
+                    <div class="row">
+                      <!-- 사진 목록을 순회하여 각 사진 표시 -->
+                      <div v-for="photo in photosList" :key="photo.id" class="col-4 mb-2">
+                        <img :src="photo.url" :alt="photo.title" class="img-fluid border cy-photo"
+                          @click="viewPhoto(photo)" />
+                        <small class="d-block text-center">{{ photo.title }}</small>
+                      </div>
+                      <!-- 사진이 없을 때 메시지 표시 -->
+                      <div v-if="photosList.length === 0" class="text-center text-muted w-100">서비스 준비 중...</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 탭 네비게이션 영역 -->
+                <div class="d-flex flex-column border-start cy-tabs" style="width: 100px;">
+                  <ul class="nav nav-tabs flex-column h-100">
+                    <!-- 홈 탭 -->
+                    <li class="nav-item border-bottom flex-fill d-flex">
+                      <a class="nav-link flex-fill d-flex align-items-center justify-content-center cy-tab-link"
+                        :class="{ active: activeTab === 'home' }" href="#" @click.prevent="activeTab = 'home'">홈</a>
+                    </li>
+                    <!-- 방명록 탭 -->
+                    <li class="nav-item border-bottom flex-fill d-flex">
+                      <a class="nav-link flex-fill d-flex align-items-center justify-content-center cy-tab-link"
+                        :class="{ active: activeTab === 'guestbook' }" href="#"
+                        @click.prevent="changeTab('guestbook')">방명록</a>
+                    </li>
+                    <!-- 사진첩 탭 -->
+                    <li class="nav-item flex-fill d-flex">
+                      <a class="nav-link flex-fill d-flex align-items-center justify-content-center cy-tab-link"
+                        :class="{ active: activeTab === 'photos' }" href="#"
+                        @click.prevent="changeTab('photos')">사진첩</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 오른쪽 여백 -->
+    <div class="m-10 bg-light-success" style="width: 15%;"></div>
   </div>
 </template>
 
@@ -788,74 +832,6 @@ export default {
 </script>
 
 <style scoped>
-/* 구글 폰트 DotGothic16 import */
-@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
-
-/* === 네비게이션 탭 스타일 === */
-.nav-tabs .nav-link {
-  border-radius: 0;
-  font-size: 0.875rem;
-}
-
-.nav-tabs .nav-link.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
-}
-
-/* === 배지 스타일 === */
-.badge {
-  font-size: 0.75rem;
-}
-
-/* === 왼쪽 사이드바 스타일 === */
-.sidebar-left {
-  font-size: 0.8rem;
-  line-height: 1.2;
-}
-
-/* === 프로필 영역 스타일 === */
-.profile-box {
-  width: 100%;
-  height: 150px;
-  margin-bottom: 8px;
-  overflow: hidden;
-  /* 이미지가 박스를 넘지 않도록 */
-}
-
-.profile-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* 이미지 비율 유지하면서 박스에 맞춤 */
-}
-
-/* === 상태 메시지 박스 스타일 === */
-.status-box {
-  width: 100%;
-  height: 60px;
-}
-
-/* === 폼 컨트롤 스타일 === */
-.form-control-sm,
-.form-select-sm,
-textarea.form-control-sm {
-  font-size: 0.8rem;
-  padding: 2px 6px;
-}
-
-textarea.form-control-sm {
-  resize: none;
-  /* 텍스트영역 크기 조절 비활성화 */
-}
-
-/* === 알림 메시지 스타일 === */
-.alert {
-  margin-bottom: 10px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
-}
-
 /* 검색 입력 필드의 부모 컨테이너에 relative position 추가 */
 .music-search-container {
   position: relative;
@@ -882,52 +858,205 @@ textarea.form-control-sm {
   /* 더 진한 그림자로 강조 */
 }
 
-.music-item {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  /* 호버 효과를 위한 전환 */
+/* === CYWORLD VIBE THEME === */
+.cy-bg {
+  background-image:
+    radial-gradient(#ffffff 1px, transparent 1px),
+    radial-gradient(#ffffff 1px, transparent 1px);
+  background-position: 0 0, 8px 8px;
+  background-size: 16px 16px;
 }
 
-.music-item:hover {
-  background-color: #f8f9fa;
-  /* 마우스 오버 시 배경색 변경 */
+.cy-window {
+  border: 2px solid #222;
+  background: #fffdfb;
+  box-shadow: 0 2px 0 #000, 0 4px 0 #0003;
+  border-radius: 6px;
 }
 
-.music-item.selected {
-  background-color: #e3f2fd;
-  /* 선택된 아이템 배경색 */
-  border-left: 3px solid #2196f3;
-  /* 선택된 아이템 왼쪽 테두리 */
+.cy-shadow {
+  box-shadow: 0 2px 0 #000, 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-.music-thumbnail {
-  width: 60px;
-  height: 45px;
+.cy-titlebar {
+  background: linear-gradient(180deg, #ffedd5 0%, #ffd6a5 100%);
+  border: 2px solid #111;
+  border-radius: 6px;
+  padding: 6px 8px !important;
+}
+
+.cy-title-text {
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 #fff;
+}
+
+.cy-logo {
+  filter: saturate(120%);
+}
+
+.cy-panel {
+  background: #fff;
+  border: 2px solid #111 !important;
+  border-radius: 6px;
+}
+
+.cy-card {
+  background: #fffefa;
+  border: 2px dashed #b8b8b8 !important;
+  border-radius: 8px;
+}
+
+.cy-btn {
+  border-width: 2px !important;
+  box-shadow: 0 2px 0 #000;
+}
+
+.cy-alert {
+  border-width: 2px;
+}
+
+.cy-side {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.cy-badge-box {
+  background: #fff;
+  padding: 4px 6px;
+  border-width: 2px !important;
+}
+
+.cy-badge-today {
+  background: #ff6b6b !important;
+  color: #fff !important;
+  border: 2px solid #222;
+  font-weight: 700;
+}
+
+.cy-badge-total {
+  background: #6c757d !important;
+  color: #fff !important;
+  border: 2px solid #222;
+  font-weight: 700;
+}
+
+.cy-todayline {
+  padding: 2px 8px;
+  border: 2px dotted #999;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.cy-profile {
+  background: linear-gradient(180deg, #fff 0%, #fff7f7 100%);
+  width: 100%;
+  height: 150px;
+  border-width: 2px !important;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  /* 이미지가 박스를 넘지 않도록 */
+}
+
+.cy-avatar {
+  border-radius: 8px;
+}
+
+.cy-memo {
+  background:
+    repeating-linear-gradient(#fff, #fff 24px, #ffe9f0 25px),
+    linear-gradient(180deg, #fff 0%, #fff 100%);
+  border-width: 2px !important;
+  border-radius: 8px;
+}
+
+.cy-service {
+  background: #fffdf7;
+}
+
+.cy-blink {
+  animation: blink 1.3s steps(2, start) infinite;
+  font-weight: 700;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.cy-miniroom {
+  border: 2px solid #111;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.cy-tabs {
+  background: #fff;
+}
+
+.cy-tab-link {
+  border: 0 !important;
+  border-left: 4px solid transparent !important;
+  color: #555;
+  font-weight: 700;
+}
+
+.cy-tab-link:hover {
+  background: #fff7e6;
+  color: #000;
+}
+
+.cy-tab-link.active {
+  background: #ffe8c2 !important;
+  border-left-color: #ff8c00 !important;
+  color: #111 !important;
+}
+
+.cy-section {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #fff4db;
+  border: 2px solid #111;
+  border-radius: 6px;
+}
+
+.cy-photo {
+  border-width: 2px !important;
+  border-radius: 6px;
+}
+
+.cy-input {
+  border-width: 2px !important;
+  border-color: #111 !important;
+  background: #fff !important;
+}
+
+.cy-thumb {
+  width: 56px;
+  height: 40px;
   object-fit: cover;
-  /* 썸네일 비율 유지 */
+  border-width: 2px !important;
   border-radius: 4px;
 }
 
-.music-title {
-  font-size: 0.85rem;
-  font-weight: 500;
-  line-height: 1.3;
-  margin-bottom: 2px;
-  overflow: hidden;
-  /* 긴 제목 처리 */
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  /* 최대 2줄로 제한 */
-  -webkit-box-orient: vertical;
+.cy-hover:hover {
+  background: #fff9ee;
 }
 
-.music-channel {
-  font-size: 0.75rem;
+.cy-scroll {
+  scrollbar-width: thin;
 }
 
-/* === 유틸리티 클래스 === */
-.cursor-pointer {
-  cursor: pointer;
+.cy-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.cy-scroll::-webkit-scrollbar-thumb {
+  background: #ffcf99;
+  border: 2px solid #111;
+}
+
+.cy-scroll::-webkit-scrollbar-track {
+  background: #fff3e1;
 }
 </style>
