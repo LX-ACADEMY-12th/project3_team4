@@ -1,7 +1,13 @@
 <template>
-  <div class="d-flex flex-column p-3"
-    :style="{ 'font-family': 'DotGothic16, sans-serif', 'height': '700px', 'width': '900px', 'background-color': userInfo.backgroundColor }">
-    <div class=" d-flex p-2 mb-3 text-black justify-content-between align-items-center">
+  <div class="d-flex flex-column p-3" :style="{
+    'font-family': 'DotGothic16, sans-serif',
+    height: '700px',
+    width: '900px',
+    'background-color': userInfo.backgroundColor,
+  }">
+
+    <!-- 상단 헤더 -->
+    <div class="d-flex p-2 mb-3 text-black justify-content-between align-items-center">
       <div class="d-flex flex-column ms-4 me-4 align-items-center border border-dark">
         <span class="m-3">{{ userInfo.nickname || '사용자' }}님의 미니홈피</span>
         <div class="border border-dark">
@@ -11,134 +17,211 @@
       </div>
 
       <div class="border border-dark col-8 mx-auto">
-        <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD">
+        <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD" />
+        <img src="https://via.placeholder.com/100x30/007bff/ffffff?text=CYWORLD" alt="CYWORLD" />
       </div>
-
-      <div>
-        <button class="btn btn-sm btn-outline-info">
-          수정
+      <!-- 로그인한 사용자가 현재 보고있는 미니홈피 소유자일 경우 -->
+      <div v-if="isMyMinihome">
+        <!-- :disabled 버튼 비활성화 상태를 isSaving 데이터 속성과 연결 -->
+        <button class="btn btn-sm btn-outline-info" @click="toggleEdit" :disabled="isSaving">
+          <!-- 사용자가 수정 모드 일때는 '저장' 버튼으로 바뀜, 데이터 저장 중일 때는 '저장중...'으로 바뀜 -->
+          {{ isSaving ? '저장중...' : (isEditing ? '저장' : '수정') }}
         </button>
       </div>
     </div>
 
+    <!-- 저장 성공/실패 메시지 -->
+    <div v-if="saveMessage" class="alert alert-dismissible fade show" :class="saveMessageClass" role="alert">
+      {{ saveMessage }}
+      <button type="button" class="btn-close" @click="saveMessage = ''"></button>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
     <div class="d-flex flex-fill flex-row">
-      <div class="d-flex flex-column bg-white p-3 me-3">
-        <div class="d-flex flex-column align-items-center h-75 mb-3 border border-dark">
-          <div class="mt-1 mb-1 h-75 w-100">
-            <img :src="userInfo.profileImage || 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Profile'"
-              class="border p-1 img-fluid" alt="프로필 사진" style="width: 100%; height: 100%; object-fit: cover;">
-          </div>
 
-          <div class="flex-grow-1 align-items-center w-100 p-1">
-            <small class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</small>
+      <!-- 왼쪽 영역 -->
+      <div class="d-flex flex-column bg-white p-2 me-2 col-3 sidebar-left">
+        <!-- 프로필 영역 -->
+        <div class="d-flex flex-column align-items-center mb-2 border border-dark profile-box">
+          <div class="w-100 h-100">
+            <div v-if="isEditing">
+              <input type="file" @change="onFileChange" class="form-control form-control-sm mb-1" accept="image/*" />
+              <img v-if="previewImage" :src="previewImage" class="profile-img" />
+              <img v-else-if="userInfo.profileImage" :src="userInfo.profileImage" class="profile-img" />
+            </div>
+            <img v-else :src="userInfo.profileImage || 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Profile'"
+              class="profile-img" />
           </div>
         </div>
 
-        <div class="d-flex flex-column align-items-center mb-3 border border-dark text-center">
-          <p class="small w-100">{{ userInfo.statusMessage || '사용자 작성 멘트' }}</p>
+        <!-- 기분 영역 -->
+        <div class="text-center mb-1 small">
+          <div v-if="isEditing">
+            <select v-model="userInfo.todayMood" class="form-select form-select-sm">
+              <option value="">[기분 선택]</option>
+              <option value="😊 행복">😊 행복</option>
+              <option value="😢 슬픔">😢 슬픔</option>
+              <option value="😡 화남">😡 화남</option>
+              <option value="😴 피곤">😴 피곤</option>
+              <option value="😍 설렘">😍 설렘</option>
+              <option value="🤔 고민중">🤔 고민중</option>
+              <option value="😪 휴식중">😪 휴식중</option>
+            </select>
+          </div>
+          <div v-else class="text-muted">TODAY IS {{ userInfo.todayMood || '[기분]' }}</div>
         </div>
 
+        <!-- 생일+성별 영역 -->
+        <div class="text-center mb-1 small">
+          <div v-if="isEditing" class="d-flex gap-1">
+            <input type="date" v-model="userInfo.birthDate" class="form-control form-control-sm" />
+            <select v-model="userInfo.gender" class="form-select form-select-sm" style="max-width: 70px;">
+              <option value="">성별</option>
+              <option value="남자">남자</option>
+              <option value="여자">여자</option>
+            </select>
+          </div>
+          <div v-else>
+            생일: {{ userInfo.birthDate || '등록 안 됨' }}
+            <span v-if="userInfo.gender"> / {{ userInfo.gender }}</span>
+          </div>
+        </div>
+
+        <!-- 지역 영역 -->
+        <div class="text-center mb-1 small">
+          <div v-if="isEditing">
+            <input type="text" v-model="userInfo.region" class="form-control form-control-sm" placeholder="지역 입력"
+              maxlength="50" />
+          </div>
+          <div v-else>지역: {{ userInfo.region || '등록 안 됨' }}</div>
+        </div>
+
+        <!-- 취미 영역 -->
+        <div class="text-center mb-2 small">
+          <div v-if="isEditing">
+            <select v-model="userInfo.hobby" class="form-select form-select-sm">
+              <option value="">[취미 선택]</option>
+              <option value="독서">독서</option>
+              <option value="운동">운동</option>
+              <option value="음악">음악</option>
+              <option value="여행">여행</option>
+              <option value="게임">게임</option>
+              <option value="요리">요리</option>
+              <option value="영화감상">영화감상</option>
+            </select>
+          </div>
+          <div v-else>취미: {{ userInfo.hobby || '등록 안 됨' }}</div>
+        </div>
+
+        <!-- 🎨 배경색 선택 -->
+        <div class="text-center mb-2 small">
+          <div v-if="isEditing">
+            <select v-model="userInfo.backgroundColor" class="form-select form-select-sm">
+              <option value="#f8f9fa">기본 (연회색)</option>
+              <option value="#cce5ff">파랑</option>
+              <option value="#fddde6">분홍</option>
+              <option value="#212529">검정</option>
+            </select>
+          </div>
+          <div v-else>
+            배경색:
+            <span class="d-inline-block"
+              :style="{ backgroundColor: userInfo.backgroundColor, width: '40px', height: '15px', border: '1px solid #000' }"></span>
+          </div>
+        </div>
+
+        <!-- 테마 선택 -->
+        <div class="text-center mb-2 small">
+          <div v-if="isEditing">
+            <select v-model="userInfo.theme" class="form-select form-select-sm">
+              <option value="1">심플(기본)</option>
+              <option value="2">귀여운</option>
+              <option value="3">세련된</option>
+              <option value="4">빈티지</option>
+            </select>
+          </div>
+          <div v-else>
+            테마: {{ getThemeName(userInfo.theme) }}
+          </div>
+        </div>
+
+        <!-- 상태 메시지 -->
+        <div class="d-flex flex-column align-items-center mb-2 border border-dark text-center status-box">
+          <p v-if="!isEditing" class="small w-100 m-0 d-flex align-items-center justify-content-center h-100">
+            {{ userInfo.statusMessage || '사용자 작성 멘트' }}
+          </p>
+          <textarea v-else v-model="userInfo.statusMessage" class="form-control form-control-sm h-100"
+            placeholder="상태 메시지를 입력하세요" maxlength="200"></textarea>
+        </div>
+
+        <!-- 홈주인 -->
         <div class="border border-dark">
           <div class="d-flex align-items-center">
             <span class="small me-1">홈주인</span>
             <span class="small">{{ userInfo.nickname || '나' }}</span>
           </div>
+        </div>
 
-          <div class="dropdown">
-            <button
-              class="btn btn-outline-secondary btn-sm dropdown-toggle w-100 d-flex justify-content-between align-items-center"
-              type="button" data-bs-toggle="dropdown">
-              <span>★ 일촌 파도타기</span>
-            </button>
-            <ul class="dropdown-menu w-100">
-              <li v-for="friend in friendsList" :key="friend.id">
-                <a class="dropdown-item small" href="#" @click="visitFriend(friend.id)">
-                  {{ friend.nickname }}
-                </a>
-              </li>
-              <li v-if="friendsList.length === 0">
-                <span class="dropdown-item small text-muted">일촌이 없습니다</span>
-              </li>
-            </ul>
-          </div>
+        <!-- 친구 목록(파도타기) -->
+        <div>
+          <select v-model="selectedFriend" class="form-select form-select-sm" @change="goToFriendMiniHome">
+            <option disabled value="">[파도타기]</option>
+            <option v-for="user in users" :key="user.userId" :value="user.loginId">
+              {{ user.nickname }}
+            </option>
+          </select>
         </div>
       </div>
 
-      <div class="d-flex flex-grow-1 flex-column col-8 border border-black">
+      <!-- 오른쪽 영역 -->
+      <div class="d-flex flex-grow-1 col-9 flex-column border border-black">
+        <!-- 상단 -->
         <div class="d-flex border border-dark h-25">
           <div class="d-flex col-8 justify-content-center align-items-center">
-            <span class="w-100 text-center">{{ userInfo.emptySpaceText || '빈공간' }}</span>
+            <span class="w-100 text-center">{{ userInfo.emptySpaceText || '서비스 준비 중...' }}</span>
           </div>
 
           <div class="d-flex flex-grow-1 p-2" v-if="userInfo.youtubeVideoId">
             <iframe :src="`https://www.youtube.com/embed/${userInfo.youtubeVideoId}`" frameborder="0"
-              style="width: 100%; height: 100%;"
+              style="width: 100%; height: 100%"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
+              allowfullscreen></iframe>
           </div>
           <div class="d-flex flex-grow-1 p-2 justify-content-center align-items-center bg-light" v-else>
             <span class="text-muted">동영상 없음</span>
           </div>
         </div>
 
+        <!-- 메인 -->
         <div class="d-flex flex-grow-1 p-1 justify-content-center align-items-center border border-dark">
-          <div class="d-flex col-10 justify-content-center align-items-center h-100 border border-dark">
-            <div v-if="activeTab === 'home'" class="w-100 h-100 d-flex justify-content-center align-items-center">
+          <div
+            class="d-flex col-11 justify-content-center align-items-center h-100 border border-dark position-relative">
+
+            <div v-if="activeTab === 'home'"
+              class="position-absolute w-100 h-100 d-flex justify-content-center align-items-center">
               <img
                 :src="userInfo.miniroomImage || 'https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F9938F0375BBEF5CC21'"
-                alt="미니룸" class="img-fluid">
+                style="width: 100%; height: 100%; object-fit: contain;" alt="미니룸" class="img-fluid" />
             </div>
 
-            <div v-else-if="activeTab === 'guestbook'" class="w-100 h-100 p-3 overflow-auto">
-              <GuestbookView />
-              <!-- 여기서부터 가라
-              <div class="mb-3">
-                <h6>방명록</h6>
-                <button class="btn btn-primary btn-sm" @click="showGuestbookForm = !showGuestbookForm">
-                  글쓰기
-                </button>
-              </div>
-
-              <div v-if="showGuestbookForm" class="border p-2 mb-3 bg-light">
-                <div class="mb-2">
-                  <input v-model="newGuestbook.author" placeholder="작성자" class="form-control form-control-sm mb-1">
-                  <textarea v-model="newGuestbook.content" placeholder="내용을 입력하세요" class="form-control form-control-sm"
-                    rows="3"></textarea>
-                </div>
-                <button @click="addGuestbook" class="btn btn-success btn-sm me-1">등록</button>
-                <button @click="showGuestbookForm = false" class="btn btn-secondary btn-sm">취소</button>
-              </div>
-
-              <div v-for="entry in guestbookList" :key="entry.id" class="border-bottom py-2">
-                <div class="d-flex justify-content-between">
-                  <strong class="small">{{ entry.author }}</strong>
-                  <small class="text-muted">{{ formatDate(entry.createdAt) }}</small>
-                </div>
-                <p class="small mb-1">{{ entry.content }}</p>
-              </div>
-
-              여기까지 -->
-
-              <div v-if="guestbookList.length === 0" class="text-center text-muted">
-                첫 방명록을 남겨주세요!
-              </div>
+            <div v-else-if="activeTab === 'guestbook'" class="position-absolute w-100 h-100 d-flex p-3 overflow-auto">
+              <GuestbookView :mini-home-owner-login-id="miniHomeOwnerLoginId" />
             </div>
 
-            <div v-else-if="activeTab === 'photos'" class="w-100 h-100 p-3 overflow-auto">
+            <div v-else-if="activeTab === 'photos'" class="position-absolute w-100 h-100 p-3 overflow-auto">
               <h6>사진첩</h6>
               <div class="row">
                 <div v-for="photo in photosList" :key="photo.id" class="col-4 mb-2">
-                  <img :src="photo.url" :alt="photo.title" class="img-fluid border" @click="viewPhoto(photo)">
+                  <img :src="photo.url" :alt="photo.title" class="img-fluid border" @click="viewPhoto(photo)" />
                   <small class="d-block text-center">{{ photo.title }}</small>
                 </div>
-                <div v-if="photosList.length === 0" class="text-center text-muted w-100">
-                  사진이 없습니다
-                </div>
+                <div v-if="photosList.length === 0" class="text-center text-muted w-100">서비스 준비 중...</div>
               </div>
             </div>
+
           </div>
 
+          <!-- 탭 -->
           <div class="d-flex flex-column h-100 flex-grow-1 justify-content-start">
             <div class="d-flex flex-column flex-grow-1 justify-content-start">
               <ul class="nav nav-tabs flex-column">
@@ -160,134 +243,333 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
+
 <script>
-
-import axios from 'axios';
+import axios from 'axios'
 import GuestbookView from './GuestbookView.vue'
-
 
 export default {
   components: { GuestbookView },
 
-
-  // 컴포넌트의 이름
   name: 'MiniHomepage',
 
-  // 모든 데이터를 'data' 안에 직접 작성합니다.
   data() {
     return {
-      // API 호출 전 초기 상태는 null 또는 빈 객체로 설정
+      isEditing: false,
+      isSaving: false,
+      previewImage: null,
+      saveMessage: '',
+      saveMessageClass: '',
+
+      // 방문 중인 미니홈피 주인의 로그인 ID를 저장할 변수
+      miniHomeOwnerLoginId: null,
+      currentLoginId: null,
+
+      // 미니 홈페이지 로딩시 로그인 사용자 정보 담을 공간
       userInfo: {
+        // userId는 loginId 아님!
         userId: null,
         nickname: null,
-        profileImagePath: null,
+        profileImage: null,
         todayMood: null,
         statusMessage: null,
+        birthDate: null,
+        gender: null,
+        region: null,
+        hobby: null,
         youtubeVideoId: null,
-        backgroundColor: '#eeeeee',
+        backgroundColor: '#f8f9fa',
+        theme: null,
       },
-      visitCount: {
-        todayCount: 0,
-        totalCount: 0
-      },
-      logInUserId: "leesuji", // 로그인한 사용자 ID (임시값) <- 세션 정보로 불러와야 함.
+      // 사용자 리스트 담을 배열
+      users: [],
+      selectedFriend: '',
 
-      // 친구 목록: 배열로 여러 개의 객체를 넣습니다.
-      friendsList: [
-        { id: 1, nickname: '김일촌' },
-        { id: 2, nickname: '박일촌' },
-        { id: 3, nickname: '최일촌' },
-      ],
-      // 방명록 목록 -- 가라여서 지울거임
-      guestbookList: [
-        { id: 1, author: '방문자', content: '미니홈피 정말 멋져요!', createdAt: new Date() },
-        { id: 2, author: '개발자', content: '추억의 싸이월드 감성!', createdAt: new Date() },
-      ],
-      // 사진첩 목록
-      photosList: [
-        { id: 1, url: 'https://placehold.co/150/ff0000/ffffff?text=사진1', title: '여행사진' },
-        { id: 2, url: 'https://placehold.co/150/00ff00/ffffff?text=사진2', title: '강아지' },
-        { id: 3, url: 'https://placehold.co/150/0000ff/ffffff?text=사진3', title: '하늘' },
-      ],
-      // UI 상태 관리 변수
+      // 수정 전 원본 데이터 백업 (취소 기능을 위해)
+      originalUserInfo: {},
+      visitCount: { todayCount: 0, totalCount: 0 },
+      loginUserPk: 3, // 임시: 실제 로그인 후 userId로 교체
+      friendsList: [],
+      guestbookList: [],
+      photosList: [],
       activeTab: 'home',
-      showGuestbookForm: false,
-      newGuestbook: {
-        author: '',
-        content: '',
-      },
-    };
+    }
   },
 
-  // 라이프사이클 훅으로, 컴포넌트의 인스턴스가 DOM에 완전 연결되고 렌더링 된 후 호출
+  watch: {
+    // 라우트 변경 감지
+    '$route'(to, fromRoute) { // 'from'을 'fromRoute'로 변경
+      console.log('라우트 변경됨:', to.params.loginId);
+
+      // 새로운 사용자 ID로 데이터 다시 로드
+      if (to.params.loginId) {
+        this.miniHomeOwnerLoginId = to.params.loginId;
+        this.fetchMinihome(this.miniHomeOwnerLoginId);
+        console.log('currentLoginId 설정:', this.currentLoginId);
+        console.log('miniHomeOwnerLoginId 설정:', this.miniHomeOwnerLoginId);
+        console.log('라우트 변경됨:', to.params.loginId);
+      }
+    }
+  },
+
+  // 라이플사이클 훅 - vue 컴포넌트가 최초로! 마운트 된 후 호출됨.
   mounted() {
-    // 사용자 정보를 가져오는 메서드실행
-    this.fetchUserInfo(this.logInUserId); // 로그인 사용자 ID로 정보 조회
+    // 1. 세션 스토리지에서 로그인 ID를 가져와 this.currentLoginId에 할당합니다.
+    this.currentLoginId = sessionStorage.getItem('loginId');
+
+    // 2. URL 파라미터에서 방문한 미니홈피의 ID를 가져옵니다.
+    const miniHomeOwnerLoginId = this.$route.params.loginId;
+
+    // 전체 사용자 리스트 가져오기
+    this.getUsers();
+
+    if (miniHomeOwnerLoginId) {
+      this.fetchMinihome(miniHomeOwnerLoginId);
+    } else {
+      console.error('가져올 사용자가 없습니다.');
+      this.$router.push('/login');
+    }
   },
 
-  // 컴포넌트가 사용할 메서드(함수)
+  // computed 속성 추가
+  computed: {
+    // 현재 보고 있는 미니홈피가 내 것인지 판단하는 속성
+    isMyMinihome() {
+      // 방문 중인 ID가 현재 로그인 ID와 같으면 true 반환
+      return this.miniHomeOwnerLoginId === this.currentLoginId;
+    }
+  },
+
   methods: {
-
-    // user 정보 가져오기
-    async fetchUserInfo(logInUserId) {
+    // 미니홈피 화면 데이터 조회
+    async fetchMinihome(miniHomeOwnerLoginId) {
       try {
-        const response = await axios.get(`http://localhost:8080/api/my-minihome?loginUserId=${logInUserId}`);
+        // Axios 라이브러리를 사용하여 GET 요청
+        // {data} : 서버로 부터 실제 응답 데이터는 data 속성 안에 있음.
+        // 응답 객체에서 data 속성만을 추출하여 data 변수에 저장
+        const { data } =
+          await axios.get(
+            'http://localhost:8080/api/showMiniHome',
+            {
+              // 요청과 함께 보낼 파라미터 정의
+              params: { miniHomeOwnerLoginId },
+            }
+          )
 
-        // API 응답 객체에서 userInfo와 visitCount를 각각 할당
-        this.userInfo = response.data;
-        this.visitCount = response.data.visitCount;
-        this.userInfo.backgroundColor = '#f8f9fa'; // 삭제해도돼 검정색배경이라 안보여서 추가함
-
-      } catch (error) {
-        // API 요청 실패 시 에러를 콘솔에 출력
-        console.error("사용자 정보를 가져오는데 실패했습니다.", error);
-
-        // 에러 발생 시 가짜 데이터 할당
+        // 미니홈피 사용자 정보 담기
         this.userInfo = {
-          nickname: '에러',
-          profileImage: 'https://via.placeholder.com/120x120/cccccc/ffffff?text=Error',
-          todayMood: '[에러]',
-          statusMessage: '데이터를 불러오지 못했습니다.',
-          emptySpaceText: '정보 로딩 실패',
-          youtubeVideoId: null,
-          backgroundColor: '#FFFFFF' // 에러 시 기본 배경색
-        };
-        this.visitCount = {
-          today: 0,
-          total: 0
-        };
+          // 미니홈피 사용자의 사용자 id
+          userId: data.userId,
+          // 미니홈피 사용자의 닉네임
+          nickname: data.nickname,
+          // 미니홈피 사용자의 프로필 사진 경로
+          profileImage: data.profileImage,
+          // 미니홈피 사용자의 기분
+          todayMood: data.todayMood,
+          // 미니홈피 사용자의 상태메시지
+          statusMessage: data.statusMessage,
+          // 미니홈피 사용자의 생일
+          birthDate: data.birthDate,
+          // 미니홈피 사용자의 성별
+          gender: data.gender,
+          // 미니홈피 사용자의 지역
+          region: data.region,
+          // 미니홈피 사용자의 취미
+          hobby: data.hobby,
+          // 미니홈피에 설정한 BGM 유투브 ID 없는 경우, null 값
+          youtubeVideoId: data.youtubeVideoId || null,
+          // 미니홈피에 설정한 배경색상 없으면, 기본 설정값
+          backgroundColor: data.backgroundColor || '#f8f9fa',
+          // 미니홈피에 설정한 테마 id 없으면, null 값
+          theme: data.appliedThemeId || null,
+        }
+        // 미니홈피 사용자 미니홈피의 방문자 통계
+        this.visitCount = data.visitCount
+          // 값이 있는 경우
+          ? data.visitCount
+          // 값이 없는 경우
+          : { todayCount: data.todayCount || 0, totalCount: data.totalCount || 0 }
+      }
+      // 에러가 발생할 경우
+      catch (error) {
+        console.error('미니홈피 정보를 가져오는데 실패했습니다.', error)
+        this.showMessage('미니홈피 정보를 불러오는데 실패했습니다.', 'error')
       }
     },
-    changeTab(tabName) {
-      this.activeTab = tabName;
+
+    async toggleEdit() {
+      if (this.isEditing) {
+        // 현재 수정 모드인 경우: 저장 로직 실행
+        this.saveMinihome();
+      } else {
+        // 현재 수정 모드가 아닌 경우: 수정 모드로 전환
+        // **1. 현재 보고 있는 미니홈피가 내 것인지 확인**
+        if (!this.isMyMinihome) {
+          this.showMessage('본인의 미니홈피만 수정할 수 있습니다.', 'error');
+          return;
+        }
+
+        // **2. isEditing 상태를 true로 변경**
+        this.isEditing = true;
+
+        // **3. 수정 취소를 위해 원본 데이터 백업**
+        this.originalUserInfo = { ...this.userInfo };
+      }
     },
 
-    // 🔥 여기 추가
-    formatDate(date) {
-      if (!date) return '';
-      const d = new Date(date);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const hh = String(d.getHours()).padStart(2, '0');
-      const min = String(d.getMinutes()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-    }
-  }
-};
-</script>
+    // 미니홈피 정보 저장
+    async saveMinihome() {
+      this.isSaving = true
 
+      try {
+        // FormData로 파일과 데이터를 함께 전송
+        const formData = new FormData()
+
+        // 기본 사용자 정보 추가
+        formData.append('userId', this.userInfo.userId)
+        formData.append('todayMood', this.userInfo.todayMood || '')
+        formData.append('statusMessage', this.userInfo.statusMessage || '')
+        formData.append('birthDate', this.userInfo.birthDate || '')
+        formData.append('gender', this.userInfo.gender || '')
+        formData.append('region', this.userInfo.region || '')
+        formData.append('hobby', this.userInfo.hobby || '')
+        formData.append('youtubeVideoId', this.userInfo.youtubeVideoId || '')
+        formData.append('backgroundColor', this.userInfo.backgroundColor)
+        formData.append('appliedThemeId', this.userInfo.theme || '')
+
+        // 프로필 이미지 파일이 있으면 추가
+        if (this.profileImageFile) {
+          formData.append('profileImageFile', this.profileImageFile)
+        }
+
+        // API 호출
+        const response = await axios.post('http://localhost:8080/api/updateMiniHome', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+
+        if (response.data.success) {
+          this.showMessage('미니홈피가 성공적으로 저장되었습니다!', 'success')
+          this.isEditing = false
+
+          // 서버에서 반환된 새로운 프로필 이미지 URL이 있으면 업데이트
+          if (response.data.profileImageUrl) {
+            this.userInfo.profileImage = response.data.profileImageUrl
+          }
+
+          // 파일 관련 임시 데이터 초기화
+          this.profileImageFile = null
+          this.previewImage = null
+
+        } else {
+          throw new Error(response.data.message || '저장에 실패했습니다.')
+        }
+
+      } catch (error) {
+        console.error('미니홈피 저장 실패:', error)
+        this.showMessage(
+          error.response?.data?.message || '미니홈피 저장에 실패했습니다.',
+          'error'
+        )
+        // 에러 발생 시 원본 데이터로 복원
+        this.userInfo = { ...this.originalUserInfo }
+      } finally {
+        this.isSaving = false
+      }
+    },
+
+    // 프로필 이미지 파일 변경
+    onFileChange(e) {
+      const file = e.target.files[0]
+      if (file) {
+        // 파일 크기 체크 (예: 5MB 제한)
+        if (file.size > 5 * 1024 * 1024) {
+          this.showMessage('파일 크기는 5MB 이하여야 합니다.', 'error')
+          return
+        }
+
+        // 파일 형식 체크
+        if (!file.type.startsWith('image/')) {
+          this.showMessage('이미지 파일만 업로드 가능합니다.', 'error')
+          return
+        }
+
+        this.profileImageFile = file
+        this.previewImage = URL.createObjectURL(file)
+      }
+    },
+
+    // 탭 변경
+    changeTab(tabName) {
+      this.activeTab = tabName
+      if (tabName === "guestbook" && this.miniHomeOwnerLoginId) {
+        // `GuestbookView`가 watch로 props 변경을 감지하도록 구현
+      }
+    },
+
+    // 테마 이름 반환
+    getThemeName(themeId) {
+      const themes = {
+        '1': '심플',
+        '2': '귀여운',
+        '3': '세련된',
+        '4': '빈티지'
+      }
+      return themes[themeId] || '심플'
+    },
+
+    // 메시지 표시
+    showMessage(message, type) {
+      this.saveMessage = message
+      this.saveMessageClass = type === 'success' ? 'alert-success' : 'alert-danger'
+
+      // 3초 후 메시지 자동 숨김
+      setTimeout(() => {
+        this.saveMessage = ''
+      }, 3000)
+    },
+
+    // 수정 취소
+    cancelEdit() {
+      this.userInfo = { ...this.originalUserInfo }
+      this.isEditing = false
+      this.previewImage = null
+      this.profileImageFile = null
+    },
+
+    /**
+     * 사용자 전체 목록을 서버에서 가져와 화면에 표시하는 작업
+     */
+    async getUsers() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/friend/users');
+        this.users = response.data
+      } catch (err) {
+        // 요청 실패 시 에러를 콘솔에 출력합니다.
+        console.error(`에러(list) -> ${err}`)
+      }
+    },
+
+    goToFriendMiniHome() {
+      if (this.selectedFriend) {
+        this.$router.push({
+          name: 'minihome',
+          params: { loginId: this.selectedFriend }
+        })
+      }
+    }
+
+  }
+}
+</script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
-
-.bg-text-black {
-  background-color: black;
-  color: white;
-}
 
 .nav-tabs .nav-link {
   border-radius: 0;
@@ -300,25 +582,47 @@ export default {
   border-color: #007bff;
 }
 
-.dropdown-menu {
-  font-size: 0.875rem;
-}
-
 .badge {
   font-size: 0.75rem;
 }
 
-.guestbook-entry {
-  border-bottom: 1px solid #eee;
-  padding: 10px 0;
+.sidebar-left {
+  font-size: 0.8rem;
+  line-height: 1.2;
 }
 
-.photo-thumbnail {
-  cursor: pointer;
-  transition: transform 0.2s;
+.profile-box {
+  width: 100%;
+  height: 150px;
+  margin-bottom: 8px;
+  overflow: hidden;
 }
 
-.photo-thumbnail:hover {
-  transform: scale(1.05);
+.status-box {
+  width: 100%;
+  height: 60px;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.form-control-sm,
+.form-select-sm,
+textarea.form-control-sm {
+  font-size: 0.8rem;
+  padding: 2px 6px;
+}
+
+textarea.form-control-sm {
+  resize: none;
+}
+
+.alert {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
 }
 </style>
