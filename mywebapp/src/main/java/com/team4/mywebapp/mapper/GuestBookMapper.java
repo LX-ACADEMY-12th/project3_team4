@@ -1,21 +1,19 @@
 package com.team4.mywebapp.mapper;
 
-import java.util.List;
-
+import com.team4.mywebapp.dto.GuestBookDto;
 import org.apache.ibatis.annotations.Mapper;
-
-import com.team4.mywebapp.dto.GuestBookDTO;
-
+import org.apache.ibatis.annotations.Param;
+import java.util.List;
 
 @Mapper
 public interface GuestBookMapper {
 
-	// 추가 -> 추가니까 int 로 바뀐행..
-	int insertGuestBook(GuestBookDTO guestbookDto); // 사람을 넣어서.. 누가 추가하는지
-	
-	// 방명록 리스트 불러오는 것
-	List<GuestBookDTO> getGuestBookList(int guestBookMiniHomeId);
-	
-	// 삭제 ? int로 해야하납..
-	int deleteGuestBook(Long guestBookId);
+    // 특정 미니홈피의 모든 방명록 목록을 조회
+    List<GuestBookDto> getGuestbookList(@Param("miniHomeOwnerLoginId") String miniHomeOwnerLoginId);
+
+    // 방명록 삭제
+    int deleteGuestbook(@Param("guestBookId") Long guestBookId);
+
+    // 방명록 추가
+    int insertGuestbook(GuestBookDto guestbook);
 }
